@@ -1,0 +1,3 @@
+[submodule "config"]
+	path = config
+	url = https://github.com/wedit-official/wedit-config.git
