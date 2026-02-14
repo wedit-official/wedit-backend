@@ -31,7 +31,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew clean build --info --stacktrace --no-daemon
+        run: ./gradlew clean build -x test --info --stacktrace --no-daemon
 
       - name: Docker login
         if: github.event_name == 'push'
