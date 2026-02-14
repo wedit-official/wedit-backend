@@ -28,3 +28,18 @@ apply from: 'gradle/docs.gradle'
 apply from: 'gradle/test.gradle'
 apply from: 'gradle/util.gradle'
 
+tasks.register('copyConfig', Copy) {
+	from 'config/src/main/resources'
+	into 'src/main/resources'
+	include 'application*.yml'
+}
+
+processResources.dependsOn copyConfig
+
+clean {
+	delete fileTree('src/main/resources') {
+		include 'application.yml'
+		include 'application-production.yml'
+		include 'application-staging.yml'
+	}
+}
