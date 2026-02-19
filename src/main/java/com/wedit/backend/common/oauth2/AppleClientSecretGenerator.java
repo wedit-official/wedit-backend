@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.security.KeyFactory;
@@ -19,6 +20,12 @@ import java.util.Base64;
 import java.util.Date;
 
 @Component
+@ConditionalOnExpression(
+        "!'${app.oauth2.apple.team-id:}'.isEmpty() && " +
+        "!'${app.oauth2.apple.key-id:}'.isEmpty() && " +
+        "!'${spring.security.oauth2.client.registration.apple.client-id:}'.isEmpty() && " +
+        "!'${app.oauth2.apple.private-key:}'.isEmpty()"
+)
 public class AppleClientSecretGenerator {
 
     private final String teamId;

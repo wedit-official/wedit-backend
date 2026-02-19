@@ -8,6 +8,7 @@ import com.wedit.backend.common.oauth2.OAuth2UserService;
 import com.wedit.backend.common.oauth2.AppleOAuth2AccessTokenResponseClient;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,7 +34,7 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final OAuth2UserService oAuth2UserService;
-    private final AppleOAuth2AccessTokenResponseClient appleOAuth2AccessTokenResponseClient;
+    private final ObjectProvider<AppleOAuth2AccessTokenResponseClient> appleOAuth2AccessTokenResponseClientProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -99,16 +100,23 @@ public class SecurityConfig {
                         ).permitAll()   // Member 관련 허가
                         .anyRequest().authenticated()
                 )   // OAuth2 도입 시 추가
-            .oauth2Login(
-                oauth2Login -> oauth2Login
-                    .authorizationEndpoint(authorization -> 
-                        authorization.baseUri("/api/oauth2/authorization"))
-                    .tokenEndpoint(tokenEndpoint ->
-                        tokenEndpoint.accessTokenResponseClient(appleOAuth2AccessTokenResponseClient))
+            .oauth2Login(oauth2Login -> {
+                oauth2Login.authorizationEndpoint(authorization ->
+                    authorization.baseUri("/api/oauth2/authorization"));
+
+                AppleOAuth2AccessTokenResponseClient appleClient =
+                    appleOAuth2AccessTokenResponseClientProvider.getIfAvailable();
+                if (appleClient != null) {
+                    oauth2Login.tokenEndpoint(tokenEndpoint ->
+                        tokenEndpoint.accessTokenResponseClient(appleClient));
+                }
+
+                oauth2Login
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler)
                     .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                        .userService(oAuth2UserService)))
+                        .userService(oAuth2UserService));
+            })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(filterExceptionHandler)   // 인증 실패 예외 핸들링
                         .accessDeniedHandler(filterExceptionHandler)        // 인가 실패 예외 핸들링
