@@ -27,6 +27,7 @@ apply from: 'gradle/database.gradle'
 apply from: 'gradle/docs.gradle'
 apply from: 'gradle/test.gradle'
 apply from: 'gradle/util.gradle'
+apply from: 'gradle/security.gradle'
 
 tasks.register('copyConfig', Copy) {
 	from 'config/src/main/resources'
