@@ -15,7 +15,11 @@ public enum SuccessStatus {
     /// 201 CREATED
     MEMBER_SIGNUP_SUCCESS(HttpStatus.CREATED, "회원가입 성공"),
 
-    /// 204 NO CONTENT
+    /// 200 OK
+    MEMBER_WITHDRAW_SUCCESS(HttpStatus.OK, "회원탈퇴 성공"),
+
+    /// 200 OK
+    TOKEN_REISSUE_SUCCESS(HttpStatus.OK, "토큰 재발급 성공"),
 
 
 

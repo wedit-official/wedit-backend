@@ -1,0 +1,129 @@
+package com.wedit.backend.common.config.security;
+
+import com.wedit.backend.api.member.jwt.filter.FilterExceptionHandler;
+import com.wedit.backend.common.config.jwt.JwtConfig;
+import com.wedit.backend.common.oauth2.OAuth2AuthenticationFailureHandler;
+import com.wedit.backend.common.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.wedit.backend.common.oauth2.OAuth2UserService;
+import com.wedit.backend.common.oauth2.AppleOAuth2AccessTokenResponseClient;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final JwtConfig jwtConfig;
+    private final FilterExceptionHandler filterExceptionHandler;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final OAuth2UserService oAuth2UserService;
+    private final ObjectProvider<AppleOAuth2AccessTokenResponseClient> appleOAuth2AccessTokenResponseClientProvider;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Arrays.asList(
+                            "https://*.wedit.me",
+                            "https://localhost:3000"
+                    ));
+                    config.setAllowedMethods(Arrays.asList(
+                            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+                    ));
+                    config.setAllowCredentials(true);
+                    config.setAllowedHeaders(Arrays.asList(
+                            "Authorization",
+                            "X-Refresh-Token",
+                            "Content-Type",
+                            "X-Requested-With",
+                            "Accept",
+                            "Origin"
+                    ));
+                    config.setMaxAge(3600L);
+                    config.addExposedHeader("Authorization");
+                    config.addExposedHeader("X-Refresh-Token");
+                    return config;
+                }))
+                .headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                            "/api-doc/**",
+                            "/api/v3/api-docs/**",
+                            "/api/swagger-resources/**",
+                            "/api/swagger-ui/**",
+                            "/api/swagger-ui.html",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**",
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/actuator/health",
+                            "/actuator/info",
+                            "/api/oauth2/authorization/kakao",
+                            "/api/oauth2/authorization/apple",
+                            "/api/oauth2/authorization/google",
+                            "/api/oauth2/authorization/naver",
+                            "/login/oauth2/code/**"
+                        ).permitAll()   // Swagger, Spring Actuator 허가
+                        .requestMatchers(
+                                "/api/v1/member/signup",
+                                "/api/v1/member/login",
+                                "/api/v1/member/token-reissue"
+                        ).permitAll()   // Member 관련 허가
+                        .anyRequest().authenticated()
+                )   // OAuth2 도입 시 추가
+            .oauth2Login(oauth2Login -> {
+                oauth2Login.authorizationEndpoint(authorization ->
+                    authorization.baseUri("/api/oauth2/authorization"));
+
+                AppleOAuth2AccessTokenResponseClient appleClient =
+                    appleOAuth2AccessTokenResponseClientProvider.getIfAvailable();
+                if (appleClient != null) {
+                    oauth2Login.tokenEndpoint(tokenEndpoint ->
+                        tokenEndpoint.accessTokenResponseClient(appleClient));
+                }
+
+                oauth2Login
+                    .successHandler(oAuth2AuthenticationSuccessHandler)
+                    .failureHandler(oAuth2AuthenticationFailureHandler)
+                    .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                        .userService(oAuth2UserService));
+            })
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(filterExceptionHandler)   // 인증 실패 예외 핸들링
+                        .accessDeniedHandler(filterExceptionHandler)        // 인가 실패 예외 핸들링
+                );
+
+        http.addFilterBefore(jwtConfig.jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}
