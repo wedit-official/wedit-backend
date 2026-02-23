@@ -37,9 +37,9 @@ public class OptionGroup extends BaseTimeEntity {
     private Integer ordering;           // 정렬 순서
 
 
-    @OneToMany(mappedBy = "optionGorup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "optionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
-    private List<OptionDetail> optionDetails = new ArrayList<>();
+    private List<OptionDetail> optionDetails;
 
     @Builder
     public OptionGroup(String name, boolean isMandatory, Integer minSelectCount, Integer maxSelectCount,
