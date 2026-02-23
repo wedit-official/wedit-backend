@@ -5,12 +5,10 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @MappedSuperclass
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuperBuilder
 public abstract class BaseMedia extends BaseTimeEntity {
 
     @Column(nullable = false)

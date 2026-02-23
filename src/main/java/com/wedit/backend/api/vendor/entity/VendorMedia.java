@@ -3,6 +3,7 @@ package com.wedit.backend.api.vendor.entity;
 import com.wedit.backend.common.entity.BaseMedia;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -11,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "vendor_media")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuperBuilder
 public class VendorMedia extends BaseMedia {
 
     @Id
@@ -23,6 +23,13 @@ public class VendorMedia extends BaseMedia {
     private Vendor vendor;
 
     private boolean isThumbnail;
+
+    @Builder // 클래스가 아닌 생성자 레벨에 붙임
+    public VendorMedia(Vendor vendor, String url, Integer ordering, boolean isThumbnail) {
+        super(url, ordering);
+        this.vendor = vendor;
+        this.isThumbnail = isThumbnail;
+    }
 
     public void assignVendor(Vendor vendor) {
         this.vendor = vendor;
