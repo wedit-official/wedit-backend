@@ -26,9 +26,10 @@ public class Agency extends BaseTimeEntity {
     @Builder
     public Agency(String name) {
         this.name = name;
+        this.isActive = true;
     }
 
-    private void deactivate() {
+    public void deactivate() {
         this.isActive = false;
     }
 }
