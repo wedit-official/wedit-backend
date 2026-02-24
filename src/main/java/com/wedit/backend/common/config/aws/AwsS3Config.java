@@ -12,12 +12,12 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 public class AwsS3Config {
 
     @Value("${cloud.aws.region.static}")
-    private Region region;
+    private String region;
 
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .region(region)
+                .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.builder().build())
                 .build();
     }
@@ -25,7 +25,7 @@ public class AwsS3Config {
     @Bean
     public S3Presigner s3Presigner() {
         return S3Presigner.builder()
-                .region(region)
+                .region(Region.of(region))
                 .credentialsProvider(DefaultCredentialsProvider.builder().build())
                 .build();
     }
