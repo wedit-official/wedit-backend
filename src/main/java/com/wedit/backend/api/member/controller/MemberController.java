@@ -2,6 +2,7 @@ package com.wedit.backend.api.member.controller;
 
 import com.wedit.backend.api.member.dto.MemberLoginRequestDTO;
 import com.wedit.backend.api.member.dto.MemberLoginResponseDTO;
+import com.wedit.backend.api.member.dto.MemberSocialAdditionalInfoRequestDTO;
 import com.wedit.backend.api.member.dto.MemberSignupRequestDTO;
 import com.wedit.backend.api.member.service.MemberService;
 import com.wedit.backend.common.config.security.entity.SecurityMember;
@@ -80,6 +81,24 @@ public class MemberController {
 
         memberService.withdraw(securityMember.getMember().getId());
         return ApiResponse.successOnly(SuccessStatus.MEMBER_WITHDRAW_SUCCESS);
+    }
+
+    @PostMapping("/social/additional-info")
+    public ResponseEntity<ApiResponse<Void>> saveSocialAdditionalInfo(
+            @Valid @RequestBody MemberSocialAdditionalInfoRequestDTO dto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof SecurityMember securityMember)) {
+            return ResponseEntity.status(ErrorStatus.UNAUTHORIZED_USER.getStatusCode())
+                    .body(ApiResponse.fail(ErrorStatus.UNAUTHORIZED_USER.getStatusCode(), "인증이 필요합니다."));
+        }
+
+        try {
+            memberService.saveSocialAdditionalInfo(securityMember.getMember().getId(), dto);
+            return ApiResponse.successOnly(SuccessStatus.MEMBER_PROFILE_UPDATE_SUCCESS);
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(ErrorStatus.BAD_REQUEST_MISSING_PARAM.getStatusCode())
+                    .body(ApiResponse.fail(ErrorStatus.BAD_REQUEST_MISSING_PARAM.getStatusCode(), ex.getMessage()));
+        }
     }
 
     private Optional<String> extractBearer(String headerValue) {
