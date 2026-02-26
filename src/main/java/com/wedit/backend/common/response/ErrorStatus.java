@@ -20,6 +20,9 @@ public enum ErrorStatus {
 
     /// 404 NOT FOUND
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "해당 유저를 찾을 수 없습니다."),
+    NOT_FOUND_VENDOR(HttpStatus.NOT_FOUND, "해당 업체를 찾을 수 없습니다."),
+    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
+    NOT_FOUND_MEDIA(HttpStatus.NOT_FOUND, "해당 미디어를 찾을 수 없습니다."),
 
     /// 409 CONFLICT
     CONFLICT_DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "중복된 리소스가 존재합니다."),

@@ -38,39 +38,31 @@ public class Vendor extends BaseTimeEntity {
 
     private String contactInfo;     // 업체 연락처
 
-    private Double latitude;        // 위도
-
-    private Double longitude;       // 경도
-
     private String kakaoMapUrl;     // 카카오맵 URL
 
-    @Column(columnDefinition = "TEXT")
-    private String description;     // 업체 소개
+    private String vendorUrl;     // 업체 URL
 
     @Column(nullable = false)
     private boolean isActive = true;
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemGroup> itemGroups = new ArrayList<>();
+    private List<ItemGroup> itemGroups;
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
-    private List<VendorMedia> mediaList = new ArrayList<>();
+    private List<VendorMedia> mediaList;
 
     @Builder
     public Vendor(String name, VendorCategory category, String region, String fullAddress,
-                  String addressDetail, String contactInfo, Double latitude, Double longitude,
-                  String kakaoMapUrl, String description) {
+                  String addressDetail, String contactInfo, String kakaoMapUrl, String vendorUrl) {
         this.name = name;
         this.category = category;
         this.region = region;
         this.fullAddress = fullAddress;
         this.addressDetail = addressDetail;
         this.contactInfo = contactInfo;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.kakaoMapUrl = kakaoMapUrl;
-        this.description = description;
+        this.vendorUrl = vendorUrl;
         this.isActive = true;
         this.itemGroups = new ArrayList<>();
         this.mediaList = new ArrayList<>();

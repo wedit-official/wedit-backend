@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
@@ -25,8 +24,8 @@ public class VendorMedia extends BaseMedia {
     private boolean isThumbnail;
 
     @Builder // 클래스가 아닌 생성자 레벨에 붙임
-    public VendorMedia(Vendor vendor, String url, Integer ordering, boolean isThumbnail) {
-        super(url, ordering);
+    public VendorMedia(Vendor vendor, String url, String fileKey, Integer ordering, boolean isThumbnail) {
+        super(url, fileKey, ordering);
         this.vendor = vendor;
         this.isThumbnail = isThumbnail;
     }

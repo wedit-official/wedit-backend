@@ -49,7 +49,11 @@ public class Product extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
-    private List<OptionGroup> optionGroups = new ArrayList<>();
+    private List<OptionGroup> optionGroups; // 상품 옵션 그룹
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordering ASC")
+    private List<ProductMedia> mediaList;   // 상품 이미지들
 
     @Builder
     public Product(ItemGroup itemGroup, Agency agency, String name, Long basePrice,
@@ -62,6 +66,7 @@ public class Product extends BaseTimeEntity {
         this.isVisible = false;   // 최초 등록 시 임시저장 상태
         this.isDeleted = false;
         this.optionGroups = new ArrayList<>();
+        this.mediaList = new ArrayList<>();
     }
 
     public void publish() {
@@ -81,5 +86,10 @@ public class Product extends BaseTimeEntity {
     public void addOptionGroup(OptionGroup optionGroup) {
         this.optionGroups.add(optionGroup);
         optionGroup.assignProduct(this);
+    }
+
+    public void addMedia(ProductMedia media) {
+        this.mediaList.add(media);
+        media.assignProduct(this);
     }
 }
