@@ -1,11 +1,9 @@
 package com.wedit.backend.api.member.dto;
 
 import com.wedit.backend.api.member.entity.SpouseType;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,23 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class MemberSignupRequestDTO {
-
-    @Email
-    @NotBlank
-    private String email;
-
-    @NotBlank
-    @Size(min = 8, max = 64)
-    @Pattern(
-            regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,64}$",
-            message = "비밀번호는 8자 이상이며 영문, 숫자, 특수문자를 포함해야 합니다."
-    )
-    private String password;
-
-    @NotBlank
-    @Size(max = 50)
-    private String name;
+public class MemberSocialAdditionalInfoRequestDTO {
 
     @NotNull
     private LocalDate birthDate;
