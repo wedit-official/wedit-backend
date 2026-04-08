@@ -42,7 +42,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MemberLoginResponseDTO login(MemberLoginRequestDTO dto) {
         Member member = memberRepository.findByEmailAndDeletedFalse(dto.getEmail())
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
