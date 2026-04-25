@@ -2,6 +2,7 @@ package com.wedit.backend.api.member.service;
 
 import com.wedit.backend.api.member.dto.MemberLoginRequestDTO;
 import com.wedit.backend.api.member.dto.MemberLoginResponseDTO;
+import com.wedit.backend.api.member.dto.MemberSocialAdditionalInfoRequestDTO;
 import com.wedit.backend.api.member.dto.MemberSignupRequestDTO;
 import com.wedit.backend.api.member.entity.Member;
 import com.wedit.backend.api.member.entity.Role;
@@ -36,6 +37,10 @@ public class MemberService {
                 .email(dto.getEmail())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
+                .birthDate(dto.getBirthDate())
+                .phoneNumber(dto.getPhoneNumber())
+                .weddingDate(dto.getWeddingDate())
+                .spouseType(dto.getSpouseType())
                 .role(Role.ROLE_USER)
                 .build();
 
@@ -73,6 +78,27 @@ public class MemberService {
 
         refreshTokenService.deleteAllByMemberId(memberId);
         member.markDeleted();
+    }
+
+    @Transactional
+    public void saveSocialAdditionalInfo(Long memberId, MemberSocialAdditionalInfoRequestDTO dto) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+        if (member.isDeleted()) {
+            throw new NotFoundException("존재하지 않는 사용자입니다.");
+        }
+
+        if (member.getOauthId() == null) {
+            throw new IllegalStateException("소셜 로그인 회원만 추가 정보를 저장할 수 있습니다.");
+        }
+
+        member.updateProfile(
+                dto.getBirthDate(),
+                dto.getPhoneNumber(),
+                dto.getWeddingDate(),
+                dto.getSpouseType()
+        );
     }
 
     @Transactional

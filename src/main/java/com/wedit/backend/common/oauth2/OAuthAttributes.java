@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.wedit.backend.api.member.entity.Member;
 import com.wedit.backend.api.member.entity.Role;
+import com.wedit.backend.api.member.entity.SocialProvider;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -106,6 +107,8 @@ public class OAuthAttributes {
 
 		return Member.builder()
 			.oauthId(generatedUserId)
+			.socialProvider(SocialProvider.valueOf(socialProvider.toUpperCase()))
+			.socialLoginId(socialId)
 			.name(name)
 			.email(email)
 			.password("OAUTH_USER")

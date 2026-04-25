@@ -4,6 +4,7 @@ import com.wedit.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,8 +29,28 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = true, unique = true, length = 100)
     private String oauthId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, length = 20)
+    private SocialProvider socialProvider;
+
+    @Column(nullable = true, length = 100)
+    private String socialLoginId;
+
     @Column(nullable = false, length = 50)
     private String name;
+
+    @Column(nullable = true)
+    private LocalDate birthDate;
+
+    @Column(nullable = true, length = 30)
+    private String phoneNumber;
+
+    @Column(nullable = true)
+    private LocalDate weddingDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, length = 10)
+    private SpouseType spouseType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -47,6 +68,13 @@ public class Member extends BaseTimeEntity {
     public Member update(String name) {
         this.name = name;
         return this;
+    }
+
+    public void updateProfile(LocalDate birthDate, String phoneNumber, LocalDate weddingDate, SpouseType spouseType) {
+        this.birthDate = birthDate;
+        this.phoneNumber = phoneNumber;
+        this.weddingDate = weddingDate;
+        this.spouseType = spouseType;
     }
 
     public void markDeleted() {

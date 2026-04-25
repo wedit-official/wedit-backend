@@ -24,6 +24,9 @@ public enum SuccessStatus {
     /// 204 NO CONTENT
     MEDIA_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "미디어 삭제 성공"),
 
+    /// 200 OK
+    MEMBER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "회원 추가정보 저장 성공"),
+
 
 
     ;
