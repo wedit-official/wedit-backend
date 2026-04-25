@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.wedit.backend.api.member.entity.Member;
-import com.wedit.backend.api.member.repository.MemberRepository;
+import com.wedit.backend.api.member.service.MemberService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class OAuth2UserService
 	implements org.springframework.security.oauth2.client.userinfo.OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-	private final MemberRepository memberRepository;
+	private final MemberService memberService;
 	private final HttpSession httpSession;
 
 	@Override
@@ -62,18 +62,22 @@ public class OAuth2UserService
 	}
 
 	private Member saveOrUpdate(OAuthAttributes attributes) {
-		Member userEntity = memberRepository.findByOauthIdAndDeletedFalse(
-				attributes.getSocialProvider() + "_" + attributes.getSocialId())
-			.map(entity -> {
-				System.out.println("기존 사용자 발견 - ID: " + entity.getId() + ", Email: " + entity.getEmail());
-				return entity.update(attributes.getName());
-			})
-			.orElseGet(() -> {
-				System.out.println("새 사용자 생성 - Email: " + attributes.getEmail());
-				return attributes.toEntity();
-			});
+		Member existingMember = memberService.findActiveByOauthId(
+			attributes.getSocialProvider() + "_" + attributes.getSocialId()
+		).orElse(null);
 
-		Member savedMember = memberRepository.save(userEntity);
+		if (existingMember != null) {
+			System.out.println("기존 사용자 발견 - ID: " + existingMember.getId() + ", Email: " + existingMember.getEmail());
+		} else {
+			System.out.println("새 사용자 생성 - Email: " + attributes.getEmail());
+		}
+
+		Member savedMember = memberService.saveOrUpdateOauthMember(
+			attributes.getSocialProvider(),
+			attributes.getSocialId(),
+			attributes.getName(),
+			attributes.getEmail()
+		);
 		System.out.println("저장된 사용자 - ID: " + savedMember.getId() + ", Email: " + savedMember.getEmail());
 
 		return savedMember;

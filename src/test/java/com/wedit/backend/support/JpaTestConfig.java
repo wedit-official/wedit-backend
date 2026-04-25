@@ -1,9 +1,7 @@
 package com.wedit.backend.support;
 
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import java.lang.annotation.ElementType;
@@ -16,8 +14,6 @@ import java.lang.annotation.Target;
  * @EnableJpaAuditing 이 비활성화 됩니다.
  * 이 설정을 @Import 하여 createdAt / updatedAt 이 정상 동작하도록 합니다.
  */
-@TestConfiguration
-@EnableJpaAuditing
 public class JpaTestConfig {
 
     /**
@@ -27,7 +23,7 @@ public class JpaTestConfig {
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @DataJpaTest
-    @Import(JpaTestConfig.class)
+    @ActiveProfiles("test")
     // application.properties 의 ddl-auto=none 이 @SpringBootTest 전용이므로
     // @DataJpaTest(H2) 컨텍스트에서는 create-drop 으로 명시적으로 재지정한다
     @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")

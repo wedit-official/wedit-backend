@@ -13,12 +13,13 @@ public class BaseException extends RuntimeException {
     private String responseMessage;
 
     public BaseException(HttpStatus statusCode) {
-        super();
+        super(statusCode.getReasonPhrase());
         this.statusCode = statusCode;
+        this.responseMessage = statusCode.getReasonPhrase();
     }
 
     public BaseException(HttpStatus statusCode, String responseMessage) {
-        super();
+        super(responseMessage);
         this.statusCode = statusCode;
         this.responseMessage = responseMessage;
     }

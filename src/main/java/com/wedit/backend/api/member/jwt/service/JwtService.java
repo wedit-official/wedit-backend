@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -45,6 +46,7 @@ public class JwtService {
                 .claim("email", email)
                 .claim("role", role.name())
                 .claim("type", "ACCESS")
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(now)                   // iat
                 .setExpiration(expirationDate)      // exp
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -60,6 +62,7 @@ public class JwtService {
         String token =  Jwts.builder()
                 .setSubject(memberId.toString())    // sub
                 .claim("type", "REFRESH")
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(now)                   // iat
                 .setExpiration(expirationDate)      // exp
                 .signWith(secretKey, SignatureAlgorithm.HS256)

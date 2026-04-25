@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -125,5 +126,32 @@ public class MemberService {
                             .build();
                 })
                 .orElseThrow(() -> new NotFoundException("저장된 리프레시 토큰이 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> findActiveByEmail(String email) {
+        return memberRepository.findByEmailAndDeletedFalse(email);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> findActiveByOauthId(String oauthId) {
+        return memberRepository.findByOauthIdAndDeletedFalse(oauthId);
+    }
+
+    @Transactional
+    public Member saveOrUpdateOauthMember(String socialProvider, String socialId, String name, String email) {
+        String oauthId = socialProvider + "_" + socialId;
+
+        Member member = memberRepository.findByOauthIdAndDeletedFalse(oauthId)
+                .map(entity -> entity.update(name))
+                .orElseGet(() -> Member.builder()
+                        .oauthId(oauthId)
+                        .name(name)
+                        .email(email)
+                        .password("OAUTH_USER")
+                        .role(Role.ROLE_USER)
+                        .build());
+
+        return memberRepository.save(member);
     }
 }
