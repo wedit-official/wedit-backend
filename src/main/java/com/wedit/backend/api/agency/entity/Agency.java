@@ -7,8 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
+@Entity
 @Table(name = "agencies")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Agency extends BaseTimeEntity {
@@ -18,15 +21,25 @@ public class Agency extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    private String name;            // 대행업체 이름
+
+    private String phone;           // 대행업체 연락처
+
+    private String website;         // 대행업체 사이트
 
     @Column(nullable = false)
     private boolean isActive = true;
 
+    @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AgencyProduct> agencyProducts = new ArrayList<>();
+
     @Builder
-    public Agency(String name) {
+    public Agency(String name, String phone, String website) {
         this.name = name;
+        this.phone = phone;
+        this.website = website;
         this.isActive = true;
+        this.agencyProducts = new ArrayList<>();
     }
 
     public void deactivate() {
