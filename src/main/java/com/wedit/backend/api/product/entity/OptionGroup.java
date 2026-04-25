@@ -25,25 +25,30 @@ public class OptionGroup extends BaseTimeEntity {
     private Product product;
 
     @Column(nullable = false)
-    private String name;                // 옵션 그룹 이름
+    private String name;                // 옵션 그룹명 (예: "촬영 시간", "드레스 스타일")
+
+    /**
+     * 기본 옵션(true) vs 추가 옵션(false)
+     * - 기본 옵션: 상품 구성을 결정하는 필수 선택 (예: 촬영 시간 2h/3h/4h 중 택1)
+     * - 추가 옵션: 선택적으로 추가 가능한 옵션 (예: 원본 파일, 포토북)
+     */
+    @Column(nullable = false)
+    private boolean isMandatory;
+
+    private Integer minSelectCount;     // 최소 선택 수 (기본 옵션이면 1 이상)
+
+    private Integer maxSelectCount;     // 최대 선택 수 (단일 선택이면 1)
 
     @Column(nullable = false)
-    private boolean isMandatory;        // 필수 선택 여부
-
-    private Integer minSelectCount;     // 최소 선택 개수 (필수면 1)
-    private Integer maxSelectCount;     // 최대 선택 개수 (라디오면 1, 이외 99)
-
-    @Column(nullable = false)
-    private Integer ordering;           // 정렬 순서
-
+    private Integer ordering;           // 화면 표시 순서
 
     @OneToMany(mappedBy = "optionGroup", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
-    private List<OptionDetail> optionDetails;
+    private List<OptionDetail> optionDetails = new ArrayList<>();
 
     @Builder
-    public OptionGroup(String name, boolean isMandatory, Integer minSelectCount, Integer maxSelectCount,
-                    Integer ordering) {
+    public OptionGroup(String name, boolean isMandatory,
+                       Integer minSelectCount, Integer maxSelectCount, Integer ordering) {
         this.name = name;
         this.isMandatory = isMandatory;
         this.minSelectCount = minSelectCount != null ? minSelectCount : (isMandatory ? 1 : 0);
@@ -56,7 +61,6 @@ public class OptionGroup extends BaseTimeEntity {
         this.product = product;
     }
 
-    // 옵션 상세 추가
     public void addOptionDetail(OptionDetail detail) {
         this.optionDetails.add(detail);
         detail.assignOptionGroup(this);
