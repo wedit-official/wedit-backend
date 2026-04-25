@@ -1,0 +1,20 @@
+checkstyle {
+    toolVersion = '10.17.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = false
+}
+
+tasks.register('shellTest', Exec) {
+    group = 'verification'
+    description = 'Runs shell-based workflow and hook tests.'
+    commandLine 'bash', 'scripts/tests/run.sh'
+    inputs.files(fileTree('scripts') {
+        include '**/*.sh'
+    }, fileTree('.githooks') {
+        include '**/*'
+    })
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('shellTest')
+}
