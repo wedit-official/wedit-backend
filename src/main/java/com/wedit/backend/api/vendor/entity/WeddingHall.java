@@ -40,4 +40,11 @@ public class WeddingHall extends Vendor {
     public VendorCategory getVendorCategory() {
         return VendorCategory.WEDDING_HALL;
     }
+
+    public void updateDetails(Integer capacity, Integer hallCount, boolean mealAvailable, boolean parkingAvailable) {
+        this.capacity = capacity;
+        this.hallCount = hallCount;
+        this.mealAvailable = mealAvailable;
+        this.parkingAvailable = parkingAvailable;
+    }
 }

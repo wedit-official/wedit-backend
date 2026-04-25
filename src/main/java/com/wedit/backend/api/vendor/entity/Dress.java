@@ -34,4 +34,9 @@ public class Dress extends Vendor {
     public VendorCategory getVendorCategory() {
         return VendorCategory.DRESS;
     }
+
+    public void updateDetails(String brand, Integer fittingCount) {
+        this.brand = brand;
+        this.fittingCount = fittingCount;
+    }
 }

@@ -37,4 +37,10 @@ public class Makeup extends Vendor {
     public VendorCategory getVendorCategory() {
         return VendorCategory.MAKEUP;
     }
+
+    public void updateDetails(Integer artistCount, boolean isHomeCareAvailable, Long homeCareFee) {
+        this.artistCount = artistCount;
+        this.isHomeCareAvailable = isHomeCareAvailable;
+        this.homeCareFee = homeCareFee;
+    }
 }

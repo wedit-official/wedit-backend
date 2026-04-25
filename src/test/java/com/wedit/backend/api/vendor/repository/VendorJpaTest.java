@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -170,6 +172,40 @@ class VendorJpaTest {
 
             assertThat(found).isPresent();
             assertThat(found.get().isActive()).isFalse();
+        }
+
+        @Test
+        @DisplayName("findByIdAndIsActiveTrue는 비활성 업체를 반환하지 않는다")
+        void findByIdAndIsActiveTrueExcludesInactiveVendor() {
+            WeddingHall hall = buildWeddingHall("비활성 상세 조회 테스트홀");
+            em.persistAndFlush(hall);
+
+            WeddingHall managed = weddingHallRepository.findById(hall.getId()).orElseThrow();
+            managed.deactivate();
+            weddingHallRepository.saveAndFlush(managed);
+            em.clear();
+
+            Optional<Vendor> found = vendorRepository.findByIdAndIsActiveTrue(hall.getId());
+
+            assertThat(found).isEmpty();
+        }
+
+        @Test
+        @DisplayName("findAllByIsActiveTrue는 활성 업체만 반환한다")
+        void findAllByIsActiveTrueReturnsOnlyActiveVendors() {
+            WeddingHall activeHall = buildWeddingHall("활성 업체");
+            WeddingHall inactiveHall = buildWeddingHall("비활성 업체");
+            em.persist(activeHall);
+            em.persistAndFlush(inactiveHall);
+
+            inactiveHall.deactivate();
+            weddingHallRepository.saveAndFlush(inactiveHall);
+            em.clear();
+
+            List<Vendor> activeVendors = vendorRepository.findAllByIsActiveTrue(Sort.by(Sort.Direction.ASC, "id"));
+
+            assertThat(activeVendors).extracting(Vendor::getName)
+                    .containsExactly("활성 업체");
         }
     }
 

@@ -90,6 +90,22 @@ public abstract class Vendor extends BaseTimeEntity {
         media.assignVendor(this);
     }
 
+    public void updateCommonInfo(String name, String region, String fullAddress, String addressDetail,
+                                 String contactInfo, Double latitude, Double longitude,
+                                 String kakaoMapUrl, String website, String instagramUrl, String description) {
+        this.name = name;
+        this.region = region;
+        this.fullAddress = fullAddress;
+        this.addressDetail = addressDetail;
+        this.contactInfo = contactInfo;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.kakaoMapUrl = kakaoMapUrl;
+        this.website = website;
+        this.instagramUrl = instagramUrl;
+        this.description = description;
+    }
+
     public void deactivate() {
         this.isActive = false;
     }

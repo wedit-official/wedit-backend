@@ -37,4 +37,10 @@ public class Studio extends Vendor {
     public VendorCategory getVendorCategory() {
         return VendorCategory.STUDIO;
     }
+
+    public void updateDetails(boolean isOutdoor, Integer photographerCount, String shootingStyle) {
+        this.isOutdoor = isOutdoor;
+        this.photographerCount = photographerCount;
+        this.shootingStyle = shootingStyle;
+    }
 }
