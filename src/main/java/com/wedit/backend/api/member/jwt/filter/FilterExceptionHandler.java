@@ -6,20 +6,18 @@ import com.wedit.backend.common.response.ErrorStatus;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
-@RequiredArgsConstructor
+// @Component 제거 — Spring Framework 7이 컴포넌트 스캔 중 AuthenticationEntryPoint.class
+// 파일을 ASM 리소스로 직접 열려다 FileNotFoundException을 던지는 문제를 방지한다.
+// SecurityConfig에서 @Bean 으로 직접 등록한다.
 public class FilterExceptionHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
-
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
