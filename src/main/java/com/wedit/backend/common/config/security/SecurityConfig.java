@@ -30,11 +30,15 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtConfig jwtConfig;
-    private final FilterExceptionHandler filterExceptionHandler;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final OAuth2UserService oAuth2UserService;
     private final ObjectProvider<AppleOAuth2AccessTokenResponseClient> appleOAuth2AccessTokenResponseClientProvider;
+
+    @Bean
+    public FilterExceptionHandler filterExceptionHandler() {
+        return new FilterExceptionHandler();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -118,8 +122,8 @@ public class SecurityConfig {
                         .userService(oAuth2UserService));
             })
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(filterExceptionHandler)   // 인증 실패 예외 핸들링
-                        .accessDeniedHandler(filterExceptionHandler)        // 인가 실패 예외 핸들링
+                        .authenticationEntryPoint(filterExceptionHandler())   // 인증 실패 예외 핸들링
+                        .accessDeniedHandler(filterExceptionHandler())        // 인가 실패 예외 핸들링
                 );
 
         http.addFilterBefore(jwtConfig.jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
