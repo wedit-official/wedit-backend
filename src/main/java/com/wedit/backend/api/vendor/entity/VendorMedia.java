@@ -21,11 +21,11 @@ public class VendorMedia extends BaseMedia {
     @JoinColumn(name = "vendor_id", nullable = false)
     private Vendor vendor;
 
-    private boolean isThumbnail;
+    private boolean isThumbnail;    // 대표 이미지 여부
 
-    @Builder // 클래스가 아닌 생성자 레벨에 붙임
+    @Builder
     public VendorMedia(Vendor vendor, String url, String fileKey, Integer ordering, boolean isThumbnail) {
-        super(url, fileKey, ordering);
+        super(url, fileKey != null ? fileKey : url, ordering);
         this.vendor = vendor;
         this.isThumbnail = isThumbnail;
     }
