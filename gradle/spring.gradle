@@ -21,4 +21,23 @@ dependencies {
 
     // [DEV] Spring Devtools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // OAuth2 Client (Kakao, Google, Naver, Apple)
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // JWT (jjwt) - 0.11.x API (parserBuilder style)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Apple Sign In (JWT ES256 key)
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.78.1'
+
+    // AWS SDK v2 (S3)
+    implementation platform('software.amazon.awssdk:bom:2.26.12')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:auth'
 }

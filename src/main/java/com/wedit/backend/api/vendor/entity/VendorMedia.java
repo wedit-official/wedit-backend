@@ -1,0 +1,36 @@
+package com.wedit.backend.api.vendor.entity;
+
+import com.wedit.backend.common.entity.BaseMedia;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@Entity
+@Table(name = "vendor_media")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class VendorMedia extends BaseMedia {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id", nullable = false)
+    private Vendor vendor;
+
+    private boolean isThumbnail;    // 대표 이미지 여부
+
+    @Builder
+    public VendorMedia(Vendor vendor, String url, Integer ordering, boolean isThumbnail) {
+        super(url, ordering);
+        this.vendor = vendor;
+        this.isThumbnail = isThumbnail;
+    }
+
+    public void assignVendor(Vendor vendor) {
+        this.vendor = vendor;
+    }
+}
