@@ -16,8 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -30,15 +28,14 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtConfig jwtConfig;
-    private final FilterExceptionHandler filterExceptionHandler;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final OAuth2UserService oAuth2UserService;
     private final ObjectProvider<AppleOAuth2AccessTokenResponseClient> appleOAuth2AccessTokenResponseClientProvider;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public FilterExceptionHandler filterExceptionHandler() {
+        return new FilterExceptionHandler();
     }
 
     @Bean
@@ -118,8 +115,8 @@ public class SecurityConfig {
                         .userService(oAuth2UserService));
             })
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(filterExceptionHandler)   // 인증 실패 예외 핸들링
-                        .accessDeniedHandler(filterExceptionHandler)        // 인가 실패 예외 핸들링
+                        .authenticationEntryPoint(filterExceptionHandler())   // 인증 실패 예외 핸들링
+                        .accessDeniedHandler(filterExceptionHandler())        // 인가 실패 예외 핸들링
                 );
 
         http.addFilterBefore(jwtConfig.jwtAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);

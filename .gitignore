@@ -4,6 +4,8 @@
 application.yml
 .idea
 logs
+.codex/task-state/*
+!.codex/task-state/.gitkeep
 *.sql
 
 

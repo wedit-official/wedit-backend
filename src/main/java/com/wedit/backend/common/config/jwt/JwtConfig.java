@@ -1,9 +1,8 @@
 package com.wedit.backend.common.config.jwt;
 
 import com.wedit.backend.api.member.jwt.filter.JwtAuthenticationProcessingFilter;
-import com.wedit.backend.api.member.jwt.repository.RefreshTokenRepository;
 import com.wedit.backend.api.member.jwt.service.JwtService;
-import com.wedit.backend.api.member.repository.MemberRepository;
+import com.wedit.backend.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,11 +12,10 @@ import org.springframework.context.annotation.Configuration;
 public class JwtConfig {
 
     private final JwtService jwtService;
-    private final MemberRepository memberRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberService memberService;
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        return new JwtAuthenticationProcessingFilter(jwtService, memberRepository, refreshTokenRepository);
+        return new JwtAuthenticationProcessingFilter(jwtService, memberService);
     }
 }

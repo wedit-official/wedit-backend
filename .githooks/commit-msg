@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+# shellcheck disable=SC2046
+unset $(git rev-parse --local-env-vars)
+cd "${REPO_ROOT}"
+exec "${REPO_ROOT}/scripts/hooks/commit-msg.sh" "$@"

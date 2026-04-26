@@ -11,7 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.wedit.backend.api.member.entity.Member;
 import com.wedit.backend.api.member.jwt.service.JwtService;
-import com.wedit.backend.api.member.repository.MemberRepository;
+import com.wedit.backend.api.member.service.MemberService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final JwtService jwtService;
-	private final MemberRepository memberRepository;
+	private final MemberService memberService;
 
 	// 프론트엔드 URL (환경에 따라 설정)
 	@Value("${app.oauth2.authorized-redirect-uri:http://localhost:3000/oauth2/redirect}")
@@ -55,7 +55,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 		String socialId = attributes.getSocialId();
 
 		// 데이터베이스에서 사용자 조회
-		Member member = memberRepository.findByOauthIdAndDeletedFalse(socialProvider + "_" + socialId)
+		Member member = memberService.findActiveByOauthId(socialProvider + "_" + socialId)
 			.orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
 
 		System.out.println(

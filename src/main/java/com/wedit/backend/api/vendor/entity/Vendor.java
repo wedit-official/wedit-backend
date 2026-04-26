@@ -4,7 +4,6 @@ import com.wedit.backend.api.product.entity.ItemGroup;
 import com.wedit.backend.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,59 +13,72 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "vendors")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "vendor_type", discriminatorType = DiscriminatorType.STRING)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Vendor extends BaseTimeEntity {
+public abstract class Vendor extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;            // 업체 이름
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private VendorCategory category;    // 업종 (웨딩홀/드레스/메이크업/스튜디오)
+    private String name;                // 업체 이름
 
     @Column(nullable = false)
-    private String region;          // 소속 지역
+    private String region;              // 소속 지역
 
     @Column(nullable = false)
-    private String fullAddress;     // 업체 전체 주소 (도로명 또는 지번)
+    private String fullAddress;         // 전체 주소 (도로명 또는 지번)
 
-    private String addressDetail;   // 업체 상세 주소 (3층, 201호 등)
+    private String addressDetail;       // 상세 주소 (3층, 201호 등)
 
-    private String contactInfo;     // 업체 연락처
+    private String contactInfo;         // 연락처
 
-    private String kakaoMapUrl;     // 카카오맵 URL
+    private Double latitude;            // 위도
 
-    private String vendorUrl;     // 업체 URL
+    private Double longitude;           // 경도
+
+    private String kakaoMapUrl;         // 카카오맵 URL
+
+    private String website;             // 업체 공식 사이트
+
+    private String instagramUrl;        // 인스타그램 주소 (없으면 null)
+
+    @Column(columnDefinition = "TEXT")
+    private String description;         // 업체 소개
 
     @Column(nullable = false)
     private boolean isActive = true;
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemGroup> itemGroups;
+    private List<ItemGroup> itemGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
-    private List<VendorMedia> mediaList;
+    private List<VendorMedia> mediaList = new ArrayList<>();
 
-    @Builder
-    public Vendor(String name, VendorCategory category, String region, String fullAddress,
-                  String addressDetail, String contactInfo, String kakaoMapUrl, String vendorUrl) {
+    protected Vendor(String name, String region, String fullAddress, String addressDetail,
+                     String contactInfo, Double latitude, Double longitude,
+                     String kakaoMapUrl, String website, String instagramUrl, String description) {
         this.name = name;
-        this.category = category;
         this.region = region;
         this.fullAddress = fullAddress;
         this.addressDetail = addressDetail;
         this.contactInfo = contactInfo;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.kakaoMapUrl = kakaoMapUrl;
-        this.vendorUrl = vendorUrl;
+        this.website = website;
+        this.instagramUrl = instagramUrl;
+        this.description = description;
         this.isActive = true;
         this.itemGroups = new ArrayList<>();
         this.mediaList = new ArrayList<>();
     }
+
+    // 각 서브클래스가 자신의 업종을 반환
+    public abstract VendorCategory getVendorCategory();
 
     public void addItemGroup(ItemGroup itemGroup) {
         itemGroups.add(itemGroup);
@@ -74,8 +86,24 @@ public class Vendor extends BaseTimeEntity {
     }
 
     public void addMedia(VendorMedia media) {
-        this.mediaList.add(media);
+        mediaList.add(media);
         media.assignVendor(this);
+    }
+
+    public void updateCommonInfo(String name, String region, String fullAddress, String addressDetail,
+                                 String contactInfo, Double latitude, Double longitude,
+                                 String kakaoMapUrl, String website, String instagramUrl, String description) {
+        this.name = name;
+        this.region = region;
+        this.fullAddress = fullAddress;
+        this.addressDetail = addressDetail;
+        this.contactInfo = contactInfo;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.kakaoMapUrl = kakaoMapUrl;
+        this.website = website;
+        this.instagramUrl = instagramUrl;
+        this.description = description;
     }
 
     public void deactivate() {

@@ -22,20 +22,20 @@ public class OptionDetail extends BaseTimeEntity {
     private OptionGroup optionGroup;
 
     @Column(nullable = false)
-    private String name;                // 옵션 이름
+    private String name;                // 옵션 항목명 (예: "2시간", "A라인 드레스")
 
     @Column(nullable = false)
-    private Long price;                 // 추가 가격
+    private Long price;                 // 추가 금액 (기본 포함이면 0)
 
-    // 수량 기반 옵션 필드
-    private String unit;                // 단순 1회성이면 null (장, 벌, 시간 등)
-    private Integer maxCount;           // 최대 선택 가능 수량 (제한 없으면 null)
+    private String unit;                // 수량 단위 (장, 벌, 시간 등) - null이면 단순 선택 옵션
+
+    private Integer maxCount;           // 최대 선택 수량 - null이면 제한 없음
 
     @Column(nullable = false)
     private boolean isSoldOut = false;  // 품절 여부
 
     @Column(nullable = false)
-    private Integer ordering;
+    private Integer ordering;           // 화면 표시 순서
 
     @Builder
     public OptionDetail(String name, Long price, String unit, Integer maxCount, Integer ordering) {
@@ -43,6 +43,7 @@ public class OptionDetail extends BaseTimeEntity {
         this.price = price != null ? price : 0L;
         this.unit = unit;
         this.maxCount = maxCount;
+        this.isSoldOut = false;
         this.ordering = ordering != null ? ordering : 0;
     }
 
@@ -54,7 +55,7 @@ public class OptionDetail extends BaseTimeEntity {
         this.isSoldOut = !this.isSoldOut;
     }
 
-    // 견적서 계산 시 수량을 곱해야 하는 옵션인지 판단하기 위한 메서드
+    // 수량을 곱해서 견적을 계산해야 하는 옵션인지 여부
     public boolean isQuantityBased() {
         return this.unit != null;
     }
