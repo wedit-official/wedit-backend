@@ -42,7 +42,13 @@ if contains_path '^src/main/' && ! contains_path '^src/test/'; then
 fi
 
 verify_command="${STRICT_VERIFY_COMMAND:-./gradlew check build --no-daemon}"
-(cd "${repo}" && eval "${verify_command}") || fail "verification command failed: ${verify_command}"
+(
+  while IFS= read -r git_env_var; do
+    unset "${git_env_var}"
+  done < <(git -C "${repo}" rev-parse --local-env-vars)
+  cd "${repo}"
+  eval "${verify_command}"
+) || fail "verification command failed: ${verify_command}"
 
 LAST_VERIFY_COMMAND="${verify_command}"
 LAST_VERIFY_STATUS="passed"

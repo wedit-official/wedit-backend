@@ -1,17 +1,18 @@
 package com.wedit.backend.api.vendor.service;
 
-import com.wedit.backend.api.vendor.dto.VendorResponseDTO;
-import com.wedit.backend.api.vendor.dto.VendorUpsertRequestDTO;
+import com.wedit.backend.api.vendor.dto.VendorDetailRequestDTO;
+import com.wedit.backend.api.vendor.dto.VendorDetailResponseDTO;
+import com.wedit.backend.api.vendor.dto.VendorMediaRequestDTO;
 import com.wedit.backend.api.vendor.entity.Dress;
 import com.wedit.backend.api.vendor.entity.Makeup;
 import com.wedit.backend.api.vendor.entity.Studio;
 import com.wedit.backend.api.vendor.entity.Vendor;
 import com.wedit.backend.api.vendor.entity.VendorCategory;
+import com.wedit.backend.api.vendor.entity.VendorMedia;
 import com.wedit.backend.api.vendor.entity.WeddingHall;
 import com.wedit.backend.api.vendor.repository.VendorRepository;
 import com.wedit.backend.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -22,48 +23,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VendorService {
 
-    private static final Sort DEFAULT_SORT = Sort.by(Sort.Direction.DESC, "id");
-
     private final VendorRepository vendorRepository;
 
     @Transactional
-    public VendorResponseDTO createVendor(VendorUpsertRequestDTO request) {
+    public VendorDetailResponseDTO createVendor(VendorDetailRequestDTO request) {
         validateRequest(request);
-        Vendor savedVendor = vendorRepository.save(buildVendor(request));
-        return VendorResponseDTO.from(savedVendor);
+        Vendor vendor = buildVendor(request);
+        vendor.replaceMediaList(buildMediaList(request));
+
+        return VendorDetailResponseDTO.from(vendorRepository.save(vendor));
     }
 
     @Transactional(readOnly = true)
-    public List<VendorResponseDTO> getVendors(VendorCategory category, boolean includeInactive) {
+    public List<VendorDetailResponseDTO> getVendors(
+            VendorCategory category,
+            String region,
+            boolean includeInactive
+    ) {
         List<Vendor> vendors = includeInactive
-                ? vendorRepository.findAll(DEFAULT_SORT)
-                : vendorRepository.findAllByIsActiveTrue(DEFAULT_SORT);
+                ? vendorRepository.findAllDetails()
+                : vendorRepository.findActiveDetails();
 
         return vendors.stream()
                 .filter(vendor -> category == null || vendor.getVendorCategory() == category)
-                .map(VendorResponseDTO::from)
+                .filter(vendor -> !StringUtils.hasText(region) || vendor.getRegion().equals(region))
+                .map(VendorDetailResponseDTO::from)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public VendorResponseDTO getVendor(Long vendorId, boolean includeInactive) {
+    public VendorDetailResponseDTO getVendor(Long vendorId, boolean includeInactive) {
         Vendor vendor = includeInactive
-                ? findVendor(vendorId)
-                : vendorRepository.findByIdAndIsActiveTrue(vendorId)
-                        .orElseThrow(() -> new NotFoundException("업체를 찾을 수 없습니다."));
+                ? findVendorDetail(vendorId)
+                : findActiveVendorDetail(vendorId);
 
-        return VendorResponseDTO.from(vendor);
+        return VendorDetailResponseDTO.from(vendor);
     }
 
     @Transactional
-    public VendorResponseDTO updateVendor(Long vendorId, VendorUpsertRequestDTO request) {
-        Vendor vendor = findVendor(vendorId);
+    public VendorDetailResponseDTO updateVendor(Long vendorId, VendorDetailRequestDTO request) {
+        validateRequest(request);
+        Vendor vendor = findActiveVendorDetail(vendorId);
 
         if (vendor.getVendorCategory() != request.getCategory()) {
             throw new IllegalArgumentException("업체 카테고리는 변경할 수 없습니다.");
         }
 
-        validateRequest(request);
         vendor.updateCommonInfo(
                 request.getName(),
                 request.getRegion(),
@@ -78,24 +83,28 @@ public class VendorService {
                 request.getDescription()
         );
         applyCategorySpecificFields(vendor, request);
+        vendor.replaceMediaList(buildMediaList(request));
 
-        return VendorResponseDTO.from(vendor);
+        return VendorDetailResponseDTO.from(vendor);
     }
 
     @Transactional
     public void deleteVendor(Long vendorId) {
-        Vendor vendor = findVendor(vendorId);
-        if (vendor.isActive()) {
-            vendor.deactivate();
-        }
+        Vendor vendor = findActiveVendorDetail(vendorId);
+        vendor.deactivate();
     }
 
-    private Vendor findVendor(Long vendorId) {
-        return vendorRepository.findById(vendorId)
+    private Vendor findActiveVendorDetail(Long vendorId) {
+        return vendorRepository.findActiveDetailById(vendorId)
                 .orElseThrow(() -> new NotFoundException("업체를 찾을 수 없습니다."));
     }
 
-    private Vendor buildVendor(VendorUpsertRequestDTO request) {
+    private Vendor findVendorDetail(Long vendorId) {
+        return vendorRepository.findDetailById(vendorId)
+                .orElseThrow(() -> new NotFoundException("업체를 찾을 수 없습니다."));
+    }
+
+    private Vendor buildVendor(VendorDetailRequestDTO request) {
         VendorCategory category = request.getCategory();
 
         if (category == VendorCategory.WEDDING_HALL) {
@@ -173,7 +182,7 @@ public class VendorService {
                 .build();
     }
 
-    private void applyCategorySpecificFields(Vendor vendor, VendorUpsertRequestDTO request) {
+    private void applyCategorySpecificFields(Vendor vendor, VendorDetailRequestDTO request) {
         VendorCategory category = vendor.getVendorCategory();
 
         if (category == VendorCategory.WEDDING_HALL) {
@@ -210,11 +219,35 @@ public class VendorService {
         );
     }
 
-    private void validateRequest(VendorUpsertRequestDTO request) {
+    private List<VendorMedia> buildMediaList(VendorDetailRequestDTO request) {
+        return mediaRequests(request).stream()
+                .map(media -> VendorMedia.builder()
+                        .url(media.getUrl())
+                        .ordering(media.getOrdering())
+                        .isThumbnail(media.isThumbnail())
+                        .build())
+                .toList();
+    }
+
+    private void validateRequest(VendorDetailRequestDTO request) {
         if (request.getLatitude() == null ^ request.getLongitude() == null) {
             throw new IllegalArgumentException("위도와 경도는 함께 입력해야 합니다.");
         }
+        validateMedia(request);
+        validateCategorySpecificFields(request);
+    }
 
+    private void validateMedia(VendorDetailRequestDTO request) {
+        long thumbnailCount = mediaRequests(request).stream()
+                .filter(VendorMediaRequestDTO::isThumbnail)
+                .count();
+
+        if (thumbnailCount > 1) {
+            throw new IllegalArgumentException("대표 이미지는 하나만 지정할 수 있습니다.");
+        }
+    }
+
+    private void validateCategorySpecificFields(VendorDetailRequestDTO request) {
         VendorCategory category = request.getCategory();
 
         if (category == VendorCategory.WEDDING_HALL) {
@@ -245,6 +278,10 @@ public class VendorService {
         }
     }
 
+    private List<VendorMediaRequestDTO> mediaRequests(VendorDetailRequestDTO request) {
+        return request.getMediaList() == null ? List.of() : request.getMediaList();
+    }
+
     private void requireNotNull(Object value, String message) {
         if (value == null) {
             throw new IllegalArgumentException(message);
@@ -257,7 +294,7 @@ public class VendorService {
         }
     }
 
-    private Long normalizeHomeCareFee(VendorUpsertRequestDTO request) {
+    private Long normalizeHomeCareFee(VendorDetailRequestDTO request) {
         return Boolean.TRUE.equals(request.getHomeCareAvailable()) ? request.getHomeCareFee() : null;
     }
 }

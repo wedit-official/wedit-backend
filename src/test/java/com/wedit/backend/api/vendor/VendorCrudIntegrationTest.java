@@ -76,7 +76,7 @@ class VendorCrudIntegrationTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("업체 생성 성공"))
                 .andExpect(jsonPath("$.data.category").value("WEDDING_HALL"))
-                .andExpect(jsonPath("$.data.capacity").value(320))
+                .andExpect(jsonPath("$.data.details.capacity").value(320))
                 .andExpect(jsonPath("$.data.active").value(true));
 
         Vendor savedVendor = vendorRepository.findAll().getFirst();
@@ -112,9 +112,9 @@ class VendorCrudIntegrationTest {
                 .andExpect(jsonPath("$.status").value(200))
                 .andExpect(jsonPath("$.message").value("업체 수정 성공"))
                 .andExpect(jsonPath("$.data.name").value("글로우 메이크업 시그니처"))
-                .andExpect(jsonPath("$.data.artistCount").value(5))
-                .andExpect(jsonPath("$.data.homeCareAvailable").value(false))
-                .andExpect(jsonPath("$.data.homeCareFee").doesNotExist());
+                .andExpect(jsonPath("$.data.details.artistCount").value(5))
+                .andExpect(jsonPath("$.data.details.homeCareAvailable").value(false))
+                .andExpect(jsonPath("$.data.details.homeCareFee").doesNotExist());
 
         Makeup updatedVendor = (Makeup) vendorRepository.findById(savedVendor.getId()).orElseThrow();
         assertThat(updatedVendor.getName()).isEqualTo("글로우 메이크업 시그니처");

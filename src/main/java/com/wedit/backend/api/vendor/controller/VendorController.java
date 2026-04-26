@@ -1,7 +1,7 @@
 package com.wedit.backend.api.vendor.controller;
 
-import com.wedit.backend.api.vendor.dto.VendorResponseDTO;
-import com.wedit.backend.api.vendor.dto.VendorUpsertRequestDTO;
+import com.wedit.backend.api.vendor.dto.VendorDetailRequestDTO;
+import com.wedit.backend.api.vendor.dto.VendorDetailResponseDTO;
 import com.wedit.backend.api.vendor.entity.VendorCategory;
 import com.wedit.backend.api.vendor.service.VendorService;
 import com.wedit.backend.common.exception.NotFoundException;
@@ -32,25 +32,26 @@ public class VendorController {
     private final VendorService vendorService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<VendorResponseDTO>> createVendor(
-            @Valid @RequestBody VendorUpsertRequestDTO request
+    public ResponseEntity<ApiResponse<VendorDetailResponseDTO>> createVendor(
+            @Valid @RequestBody VendorDetailRequestDTO request
     ) {
         return ApiResponse.success(SuccessStatus.VENDOR_CREATE_SUCCESS, vendorService.createVendor(request));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<VendorResponseDTO>>> getVendors(
+    public ResponseEntity<ApiResponse<List<VendorDetailResponseDTO>>> getVendors(
             @RequestParam(required = false) VendorCategory category,
+            @RequestParam(required = false) String region,
             @RequestParam(defaultValue = "false") boolean includeInactive
     ) {
         return ApiResponse.success(
                 SuccessStatus.VENDOR_LIST_SUCCESS,
-                vendorService.getVendors(category, includeInactive)
+                vendorService.getVendors(category, region, includeInactive)
         );
     }
 
     @GetMapping("/{vendorId}")
-    public ResponseEntity<ApiResponse<VendorResponseDTO>> getVendor(
+    public ResponseEntity<ApiResponse<VendorDetailResponseDTO>> getVendor(
             @PathVariable Long vendorId,
             @RequestParam(defaultValue = "false") boolean includeInactive
     ) {
@@ -61,9 +62,9 @@ public class VendorController {
     }
 
     @PutMapping("/{vendorId}")
-    public ResponseEntity<ApiResponse<VendorResponseDTO>> updateVendor(
+    public ResponseEntity<ApiResponse<VendorDetailResponseDTO>> updateVendor(
             @PathVariable Long vendorId,
-            @Valid @RequestBody VendorUpsertRequestDTO request
+            @Valid @RequestBody VendorDetailRequestDTO request
     ) {
         return ApiResponse.success(
                 SuccessStatus.VENDOR_UPDATE_SUCCESS,

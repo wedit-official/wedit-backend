@@ -90,6 +90,11 @@ public abstract class Vendor extends BaseTimeEntity {
         media.assignVendor(this);
     }
 
+    public void replaceMediaList(List<VendorMedia> mediaList) {
+        this.mediaList.clear();
+        mediaList.forEach(this::addMedia);
+    }
+
     public void updateCommonInfo(String name, String region, String fullAddress, String addressDetail,
                                  String contactInfo, Double latitude, Double longitude,
                                  String kakaoMapUrl, String website, String instagramUrl, String description) {
