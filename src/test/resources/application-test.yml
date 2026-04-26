@@ -71,3 +71,14 @@ logging:
   level:
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: test-bucket
+      presign:
+        expiration-minutes: 10
+    cloudfront:
+      url: https://cdn.test.wedit.local

@@ -69,7 +69,10 @@ class MemberFlowIntegrationTest {
                         .content(json(Map.of(
                                 "email", "user@wedit.com",
                                 "password", "Password123!",
-                                "name", "웨딧 유저"
+                                "name", "웨딧 유저",
+                                "birthDate", "1994-05-20",
+                                "phoneNumber", "010-1234-5678",
+                                "spouseType", "BRIDE"
                         ))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value(201))
@@ -91,7 +94,10 @@ class MemberFlowIntegrationTest {
                         .content(json(Map.of(
                                 "email", "duplicate@wedit.com",
                                 "password", "Password123!",
-                                "name", "다른 이름"
+                                "name", "다른 이름",
+                                "birthDate", "1994-05-20",
+                                "phoneNumber", "010-1234-5678",
+                                "spouseType", "BRIDE"
                         ))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
