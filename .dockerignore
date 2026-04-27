@@ -1,0 +1,6 @@
+.git
+.gradle
+.codex
+build
+out
+*.iml
