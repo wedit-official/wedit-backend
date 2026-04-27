@@ -41,7 +41,8 @@ class LocalConfigContractTest {
 
         assertTrue(localConfig.contains("${LOCAL_DB_URL:"));
         assertTrue(localConfig.contains("${LOCAL_DB_USERNAME:"));
-        assertTrue(localConfig.contains("${LOCAL_DB_PASSWORD:"));
+        assertTrue(localConfig.contains("${LOCAL_DB_PASSWORD:}"));
+        assertFalse(localConfig.contains("ohw62459930"));
     }
 
     private static Properties loadLocalConfig() {

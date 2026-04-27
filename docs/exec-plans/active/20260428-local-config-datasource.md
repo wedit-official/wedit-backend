@@ -45,3 +45,6 @@ Add `config/src/main/resources/application-local.yml` with local MySQL datasourc
 - `./gradlew copyConfig --no-daemon`: passed, `src/main/resources/application-local.yml` was copied.
 - `./gradlew test --tests com.wedit.backend.config.LocalConfigContractTest --no-daemon`: passed.
 - `./gradlew check build --no-daemon`: passed. Docker image build was skipped by the existing harness because Docker is not available locally.
+- Review follow-up: removed the hardcoded local DB password fallback and verified the config contract rejects that leaked default.
+- `./gradlew copyConfig --no-daemon && ./gradlew test --tests com.wedit.backend.config.LocalConfigContractTest --no-daemon`: passed after review follow-up.
+- `./gradlew check build --no-daemon`: passed after review follow-up. Docker image build was skipped by the existing harness because Docker is not available locally.
