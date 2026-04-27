@@ -45,5 +45,6 @@ setup_sandbox_repo() {
   git -C "${sandbox}" add README.md
   git -C "${sandbox}" commit -m "init" >/dev/null 2>&1
   git -C "${sandbox}" branch -M main
+  git -C "${sandbox}" branch develop
   mkdir -p "${sandbox}/docs/exec-plans/active" "${sandbox}/.codex/task-state" "${sandbox}/src/main/java" "${sandbox}/src/test/java"
 }

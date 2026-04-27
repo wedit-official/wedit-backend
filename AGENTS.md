@@ -61,10 +61,18 @@
 
 ## 5단계: Commit 및 Issue/PR
 - 검증을 통과한 뒤 commit 한다.
-- commit 이후 issue가 없으면 먼저 issue를 만들고, 이어서 `main` 대상 PR을 생성한다.
+- commit 이후 issue가 없으면 먼저 issue를 만들고, 이어서 `develop` 대상 PR을 생성한다.
 - `scripts/task/create-issue.sh` 는 issue만 먼저 만들고 싶을 때 사용한다.
 - `scripts/task/create-pr.sh` 는 issue가 없으면 먼저 생성한 뒤 PR을 만들고, PR 본문에서 `Closes #<issue>` 로 issue를 닫는다.
 - commit subject는 반드시 `[feat] 설명` 형식을 사용한다.
+
+## 6단계: PR Review Gate 및 Merge
+- PR 생성 후 자동 PR review가 끝날 때까지 기다린다.
+- 자동 review가 남긴 모든 actionable comment와 review thread를 코드/테스트/문서에 반영하고 GitHub thread를 resolve 한다.
+- 머지 전에는 반드시 `scripts/task/verify-pr-ready.sh <PR_NUMBER>` 를 실행한다.
+- 이 게이트는 draft PR, requested changes, 미해결 review thread, pending/failing check, 충돌 상태를 차단한다.
+- 실패 원인과 해결 과정은 repo `EXEC_PLAN`과 Obsidian `04 Errors/Error Ledger.md` 또는 `05 Handoffs/Current State.md`에 남긴다.
+- 게이트 통과 후에만 merge commit 방식으로 `develop`에 병합한다.
 
 ## 관련 문서
 - 구조 요약: `ARCHITECTURE.md`

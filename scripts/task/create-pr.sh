@@ -57,6 +57,11 @@ Closes #${ISSUE_NUMBER}
 - Status: \`${verify_status}\`
 - Command: \`${verify_command}\`
 - At: \`${verify_at}\`
+
+## Review Gate
+- [ ] Automated PR review has completed.
+- [ ] Every actionable PR review comment/thread is addressed and resolved.
+- [ ] \`scripts/task/verify-pr-ready.sh <PR_NUMBER>\` passes before merge.
 EOF
 
 gh pr create \
