@@ -114,7 +114,7 @@ load_task_env() {
 
   TASK_SLUG="${slug}"
   TASK_TITLE="${slug}"
-  BASE_BRANCH="main"
+  BASE_BRANCH="develop"
   FEATURE_BRANCH="$(default_feature_branch "${slug}")"
   EXEC_PLAN=""
   WORKTREE="$(expected_worktree_path "${slug}")"

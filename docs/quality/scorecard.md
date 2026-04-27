@@ -8,6 +8,8 @@
 | 구조 가드레일 | 없음 -> 도입 | ArchUnit 규칙으로 핵심 계층 의존을 검증함 |
 | CI 테스트 게이트 | 없음 -> 도입 | PR 빌드에서 더 이상 `-x test`를 사용하지 않음 |
 | Docker 패키징 게이트 | 없음 -> 도입 | PR/push CI와 하네스에서 Docker image build 계약을 검증함 |
+| PR 리뷰 게이트 | 없음 -> 도입 | 자동 review activity, requested changes, unresolved thread, CI 상태를 merge 전 검증함 |
+| Obsidian 오류 원장 | 부분 도입 -> 운영 규칙화 | 재발 가능한 CI/리뷰/하네스 실패를 증상/원인/수정/체크포인트로 남김 |
 
 ## 다음 관심사
 - OAuth 실제 연동을 위한 별도 하네스
