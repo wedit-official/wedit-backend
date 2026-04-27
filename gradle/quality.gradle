@@ -15,6 +15,17 @@ tasks.register('shellTest', Exec) {
     })
 }
 
+tasks.register('specHarnessCheck', Exec) {
+    group = 'verification'
+    description = 'Validates the normalized backend feature spec and coverage matrix.'
+    commandLine 'python3', 'scripts/specs/verify_feature_harness.py'
+    inputs.files(fileTree('docs/specs') {
+        include '**/*'
+    }, fileTree('scripts/specs') {
+        include '**/*.py'
+    })
+}
+
 tasks.register('ciDockerImageBuild', Exec) {
     group = 'verification'
     description = 'Builds the application Docker image so CI-only packaging failures are caught by the harness.'
@@ -39,6 +50,7 @@ tasks.register('ciDockerImageBuild', Exec) {
 }
 
 tasks.named('check') {
+    dependsOn tasks.named('specHarnessCheck')
     dependsOn tasks.named('shellTest')
     dependsOn tasks.named('ciDockerImageBuild')
 }

@@ -6,7 +6,7 @@
 - Worktree: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/ci-fix-20260428-lf`
 - Port: `18080`
 - Log dir: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-logs/fix-ci-docker-harness`
-- Status: `in_progress`
+- Status: `completed-on-develop`
 
 ## Required Reads
 - [x] AGENTS.md
@@ -41,3 +41,12 @@
 - `./gradlew check build --no-daemon` passes locally.
 - Docker build contract is represented in the harness.
 - GitHub Actions for the fix PR runs both Gradle build and Docker image build successfully.
+
+## Verification
+- [x] `./gradlew check build --no-daemon`
+- [x] Docker packaging contract test
+
+## Completion
+- Merged into `develop` through PR #14.
+- Merge commit: `a31eb98`.
+- The Docker image build is now represented by `ciDockerImageBuild` and CI workflow Docker build steps.

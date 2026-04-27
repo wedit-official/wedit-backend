@@ -9,7 +9,7 @@
 - `main` 브랜치에서 `src/`를 직접 수정하지 마라.
 - 구현 전에 반드시 `AGENTS.md -> ARCHITECTURE.md -> docs/index.md -> 작업 관련 docs` 순서로 읽는다.
 - test 작성과 검증 실행은 절대 건너뛸 수 없다.
-- commit message는 반드시 `[feat] 설명` 형식을 따른다.
+- commit message는 반드시 Conventional Commits 형식을 따르고, `[feat] 설명` 형식을 사용한다.
 
 ## 1단계: EXEC_PLAN 생성
 - 시작 명령: `scripts/task/init-task.sh <slug> "[title]"`
@@ -21,6 +21,7 @@
 - 생성된 `EXEC_PLAN`에는 아래가 비어 있으면 안 된다.
   - Required Reads
   - Related Docs
+  - Related Feature IDs
   - Doc Notes
   - Goal
   - Approach
@@ -35,6 +36,8 @@
   - `docs/index.md`
   - 작업 관련 docs
 - 읽은 문서는 반드시 `EXEC_PLAN`의 `Required Reads`, `Related Docs`, `Doc Notes`에 남긴다.
+- 제품 기능 작업은 `EXEC_PLAN`의 `Related Feature IDs`에 실제 `feature_id`를 남긴다.
+- 하네스/인프라 작업은 `Related Feature IDs`에 `n/a-harness`를 사용할 수 있다.
 - main 브랜치에서는 `src/`를 직접 수정하지 않는다.
 
 ## 3단계: Test 작성

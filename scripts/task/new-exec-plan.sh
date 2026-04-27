@@ -43,6 +43,9 @@ cat > "${EXEC_PLAN}" <<EOF
 ## Related Docs
 - [ ] docs/...
 
+## Related Feature IDs
+- [ ] <feature-id>
+
 ## Doc Notes
 TBD
 

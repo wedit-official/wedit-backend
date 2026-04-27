@@ -11,6 +11,7 @@
 - ArchUnit 구조 가드레일 테스트
 - Docker image packaging contract check. CI must build the image on PRs and pushes so deploy-only Dockerfile failures are caught before merge.
 - PR review gate. Automated review activity must exist, actionable review threads must be resolved, and checks must pass before merge.
+- Feature spec coverage harness. The normalized backend feature CSV and coverage matrix must stay synchronized, and implemented rows must include test evidence.
 
 ## 실패 시 확인 순서
 1. `test` profile이 활성화됐는지 확인합니다.
@@ -20,6 +21,7 @@
 5. 로컬과 CI 로그가 같은 실패 지점을 가리키는지 비교합니다.
 6. PR/manual CI는 통과했지만 push CI만 실패하면 Docker build 단계가 PR 하네스에서 실행됐는지 확인합니다.
 7. PR merge가 막히면 `scripts/task/verify-pr-ready.sh <PR_NUMBER>` 를 실행해 requested changes, 미해결 review thread, pending/failing check 중 어디서 막혔는지 확인합니다.
+8. 기능명세 검증이 실패하면 `python3 scripts/specs/verify_feature_harness.py`를 직접 실행해 stale CSV, 누락 feature_id, 잘못된 status, evidence path 중 어디서 막혔는지 확인합니다.
 
 ## 금지 사항
 - 테스트에서 실 DB 접속
@@ -27,3 +29,4 @@
 - CI에서 `-x test`
 - Dockerfile에서 전체 `build` 하네스를 다시 실행하는 재귀 빌드
 - 자동 PR review의 actionable comment/thread를 unresolved 상태로 둔 채 merge
+- 제품 기능 작업에서 `Related Feature IDs`와 커버리지 매트릭스 갱신 누락

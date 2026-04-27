@@ -35,6 +35,7 @@ plan_has_checked_required_read "${EXEC_PLAN}" "AGENTS.md" || fail "AGENTS.md를 
 plan_has_checked_required_read "${EXEC_PLAN}" "ARCHITECTURE.md" || fail "ARCHITECTURE.md를 필수 읽기 목록에 체크해야 합니다."
 plan_has_checked_required_read "${EXEC_PLAN}" "docs/index.md" || fail "docs/index.md를 필수 읽기 목록에 체크해야 합니다."
 plan_has_checked_related_doc "${EXEC_PLAN}" || fail "작업 관련 docs를 최소 1개 이상 Related Docs에 기록해야 합니다."
+plan_has_checked_feature_id "${EXEC_PLAN}" || fail "Related Feature IDs에 실제 feature_id 또는 n/a-harness를 최소 1개 이상 체크해야 합니다."
 plan_doc_notes_filled "${EXEC_PLAN}" || fail "Doc Notes에 문서에서 반영한 내용을 적어야 합니다."
 
 if contains_path '^src/main/' && ! contains_path '^src/test/'; then

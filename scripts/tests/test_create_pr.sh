@@ -30,6 +30,9 @@ cat > "${sandbox}/docs/exec-plans/active/20260425-pr-check.md" <<EOF
 ## Related Docs
 - [x] docs/testing/codex-harness.md
 
+## Related Feature IDs
+- [x] n/a-harness
+
 ## Doc Notes
 - PR 본문에는 EXEC_PLAN 경로와 검증 결과를 포함해야 한다.
 
