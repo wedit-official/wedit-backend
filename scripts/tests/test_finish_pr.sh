@@ -12,18 +12,39 @@ trap 'rm -rf "${workdir}"' EXIT
 sandbox="${workdir}/repo"
 remote_repo="${workdir}/remote.git"
 feature_worktree="${workdir}/feature-worktree"
+submodule_repo="${workdir}/config-module"
 
 setup_sandbox_repo "${sandbox}"
+git init "${submodule_repo}" >/dev/null 2>&1
+git -C "${submodule_repo}" config user.email "test@example.com"
+git -C "${submodule_repo}" config user.name "Test User"
+printf 'config\n' > "${submodule_repo}/config.txt"
+git -C "${submodule_repo}" add config.txt
+git -C "${submodule_repo}" commit -m "init config" >/dev/null 2>&1
+git -C "${sandbox}" checkout develop >/dev/null 2>&1
+git -C "${sandbox}" -c protocol.file.allow=always submodule add "${submodule_repo}" config >/dev/null 2>&1
+git -C "${sandbox}" commit -m "add config submodule" >/dev/null 2>&1
 git init --bare "${remote_repo}" >/dev/null 2>&1
 git -C "${sandbox}" remote add origin "${remote_repo}"
 git -C "${sandbox}" checkout develop >/dev/null 2>&1
 git -C "${sandbox}" push -u origin develop >/dev/null 2>&1
 
 git -C "${sandbox}" worktree add "${feature_worktree}" -b codex/finish-pr develop >/dev/null 2>&1
+git -C "${feature_worktree}" -c protocol.file.allow=always submodule update --init config >/dev/null 2>&1
 printf 'finish pr\n' > "${feature_worktree}/finish.txt"
 git -C "${feature_worktree}" add finish.txt
 git -C "${feature_worktree}" commit -m "[feat] finish pr" >/dev/null 2>&1
 git -C "${feature_worktree}" push -u origin codex/finish-pr >/dev/null 2>&1
+
+hooks_dir="${workdir}/hooks"
+mkdir -p "${hooks_dir}"
+cat > "${hooks_dir}/pre-push" <<'EOF'
+#!/usr/bin/env bash
+echo "pre-push hook should be bypassed for finish-pr cleanup branch deletion" >&2
+exit 1
+EOF
+chmod +x "${hooks_dir}/pre-push"
+git -C "${sandbox}" config core.hooksPath "${hooks_dir}"
 
 stub_bin="${workdir}/bin"
 mkdir -p "${stub_bin}"
@@ -133,3 +154,4 @@ assert_output_contains 'PR #7 merged and cleaned up' "${finish_output}"
 assert_contains 'pr merge 7 --merge --match-head-commit HEAD_oid' "${gh_calls_file}"
 [[ ! -d "${feature_worktree}" ]] || fail "expected feature worktree to be removed"
 assert_command_fails git -C "${sandbox}" show-ref --verify --quiet refs/heads/codex/finish-pr
+assert_command_fails git -C "${sandbox}" ls-remote --exit-code --heads origin codex/finish-pr

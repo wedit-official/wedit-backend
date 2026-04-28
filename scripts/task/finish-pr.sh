@@ -230,7 +230,7 @@ feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
 gh pr merge "${pr_number}" --merge --match-head-commit "${head_oid}"
 
 if git -C "${develop_worktree}" ls-remote --exit-code --heads "${remote_name}" "${head_branch}" >/dev/null 2>&1; then
-  git -C "${develop_worktree}" push "${remote_name}" --delete "${head_branch}" >/dev/null
+  git -C "${develop_worktree}" push --no-verify "${remote_name}" --delete "${head_branch}" >/dev/null
 fi
 
 git -C "${develop_worktree}" fetch "${remote_name}" develop --prune
@@ -239,7 +239,7 @@ git -C "${develop_worktree}" pull --ff-only "${remote_name}" develop
 
 if [[ -n "${feature_worktree}" && "${feature_worktree}" != "${develop_worktree}" ]]; then
   cd "${develop_worktree}"
-  git worktree remove "${feature_worktree}"
+  git worktree remove --force --force "${feature_worktree}"
 fi
 
 if git -C "${develop_worktree}" show-ref --verify --quiet "refs/heads/${head_branch}"; then
