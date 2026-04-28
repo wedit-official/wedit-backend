@@ -62,3 +62,4 @@
 - Subagent review round 1 결과는 PR comment로 남겼고, 수정 후 다시 검증한다.
 - Subagent review round 2가 최신 head에 대한 subagent pass marker 강제와 verify 전후 head 변경 감지를 지적했다.
 - `finish-pr.sh`는 이제 `Codex Subagent Review Gate: PASS`와 `Head: <head_sha>` PR comment가 없으면 merge하지 않는다.
+- Subagent review round 3이 stale subagent marker test와 `finish-pr.sh`/`verify-pr-ready.sh` blocker 문서 분리를 지적했고 둘 다 반영했다.

@@ -33,12 +33,16 @@
 - merge 전에는 최신 PR head SHA에 대한 pass marker PR comment가 필요합니다.
 - pass marker 형식은 `Codex Subagent Review Gate: PASS`와 `Head: <head_sha>`를 포함해야 합니다.
 
+## `finish-pr.sh`가 막는 상태
+- Gemini bot review/comment activity가 아직 없음
+- 최신 PR head SHA에 대한 Codex subagent review pass marker가 없음
+- `verify-pr-ready.sh` 전후로 PR head SHA가 바뀜
+
 ## `verify-pr-ready.sh`가 막는 상태
 - PR이 open 상태가 아님
 - draft PR
 - `CHANGES_REQUESTED`
 - 자동 review/comment activity가 아직 없음
-- Gemini bot review/comment activity가 아직 없음
 - pending/failing/cancelled check
 - unresolved PR review thread
 - merge conflict 또는 blocked merge state

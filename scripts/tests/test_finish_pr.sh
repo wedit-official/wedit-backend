@@ -49,8 +49,12 @@ if [[ "$1" == "pr" && "$2" == "view" ]]; then
   if [[ "${GH_HEAD_CHANGES_DURING_VERIFY:-0}" == "1" && "${view_count}" -ge 5 ]]; then
     head_oid="NEW_HEAD_oid"
   fi
+  marker_head_oid="${head_oid}"
+  if [[ "${GH_STALE_SUBAGENT_MARKER:-0}" == "1" ]]; then
+    marker_head_oid="OLD_HEAD_oid"
+  fi
   if [[ "${GH_SUBAGENT_MARKER:-1}" == "1" ]]; then
-    comments_json="[{\"author\":{\"login\":\"codex\"},\"body\":\"Codex Subagent Review Gate: PASS\nHead: ${head_oid}\nRound: 2/3\"}]"
+    comments_json="[{\"author\":{\"login\":\"codex\"},\"body\":\"Codex Subagent Review Gate: PASS\nHead: ${marker_head_oid}\nRound: 2/3\"}]"
   else
     comments_json='[]'
   fi
@@ -116,6 +120,12 @@ if GH_SUBAGENT_MARKER=0 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${missing_s
   fail "expected finish-pr.sh to require a Codex subagent review marker"
 fi
 assert_contains 'missing Codex subagent review pass marker' "${missing_subagent_output}"
+
+stale_subagent_output="${workdir}/stale-subagent.txt"
+if GH_STALE_SUBAGENT_MARKER=1 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${stale_subagent_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject a stale Codex subagent review marker"
+fi
+assert_contains 'missing Codex subagent review pass marker' "${stale_subagent_output}"
 
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
 assert_output_contains 'Automated review bot activity detected' "${finish_output}"
