@@ -266,6 +266,34 @@ plan_has_checked_related_doc() {
   ' "${plan_file}"
 }
 
+plan_has_related_feature_id() {
+  local plan_file="$1"
+
+  awk '
+    /^## Related Feature IDs$/ {
+      in_section = 1
+      next
+    }
+    in_section && /^## / {
+      exit found ? 0 : 1
+    }
+    in_section && $0 ~ /^[[:space:]]*-[[:space:]]*\[x\][[:space:]]+/ {
+      line = $0
+      sub(/^[[:space:]]*-[[:space:]]*\[x\][[:space:]]+/, "", line)
+      if (line !~ /^(TBD|TODO|feature-id-or-n\/a-harness)[[:space:]]*$/ && line !~ /^[[:space:]]*$/) {
+        found = 1
+        exit 0
+      }
+    }
+    END {
+      if (found) {
+        exit 0
+      }
+      exit 1
+    }
+  ' "${plan_file}"
+}
+
 plan_doc_notes_filled() {
   local plan_file="$1"
   plan_section_filled "${plan_file}" "Doc Notes"
@@ -306,5 +334,6 @@ plan_is_complete() {
     plan_has_checked_required_read "${plan_file}" "ARCHITECTURE.md" &&
     plan_has_checked_required_read "${plan_file}" "docs/index.md" &&
     plan_has_checked_related_doc "${plan_file}" &&
+    plan_has_related_feature_id "${plan_file}" &&
     plan_doc_notes_filled "${plan_file}"
 }

@@ -59,13 +59,20 @@ Closes #${ISSUE_NUMBER}
 - At: \`${verify_at}\`
 
 ## Review Gate
-- [ ] Automated PR review has completed.
+- [ ] Gemini automated PR review has completed.
 - [ ] Every actionable PR review comment/thread is addressed and resolved.
 - [ ] \`scripts/task/verify-pr-ready.sh <PR_NUMBER>\` passes before merge.
+- [ ] \`scripts/task/finish-pr.sh <PR_NUMBER>\` performs the merge and cleanup.
 EOF
 
-gh pr create \
+pr_url="$(gh pr create \
   --base "${BASE_BRANCH}" \
   --head "${FEATURE_BRANCH}" \
   --title "${subject}" \
-  --body-file "${body_file}"
+  --body-file "${body_file}")"
+
+printf '%s\n' "${pr_url}"
+
+if [[ "${STRICT_AUTO_FINISH_PR:-1}" == "1" ]]; then
+  "${SCRIPT_DIR}/finish-pr.sh" "${pr_url}"
+fi

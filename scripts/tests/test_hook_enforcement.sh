@@ -170,6 +170,9 @@ cat > "${sandbox}/docs/exec-plans/active/20260425-hook-check.md" <<EOF
 ## Related Docs
 - [x] docs/testing/codex-harness.md
 
+## Related Feature IDs
+- [x] n/a-harness
+
 ## Doc Notes
 - H2 기반 test profile과 표준 검증 명령을 유지해야 한다.
 
