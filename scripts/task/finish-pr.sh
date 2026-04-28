@@ -113,16 +113,16 @@ remote_name="${STRICT_REMOTE_NAME:-origin}"
 [[ "${base_branch}" == "develop" ]] || fail "PR #${pr_number} must target develop, found: ${base_branch}"
 [[ "${head_branch}" =~ ^codex/[a-z0-9][a-z0-9-]*$ ]] || fail "PR #${pr_number} head branch must match codex/<slug>: ${head_branch}"
 
-develop_worktree="$(find_worktree_for_branch "develop")"
-[[ -n "${develop_worktree}" ]] || fail "local develop worktree was not found"
-[[ -z "$(git -C "${develop_worktree}" status --short)" ]] ||
-  fail "develop worktree has uncommitted changes; clean it before finishing PR #${pr_number}: ${develop_worktree}"
-
 if [[ "${resolve_threads}" == "true" ]]; then
   resolve_review_threads "${pr_node_id}" "${pr_number}"
 fi
 
 "${SCRIPT_DIR}/verify-pr-ready.sh" "${pr_number}"
+
+develop_worktree="$(find_worktree_for_branch "develop")"
+[[ -n "${develop_worktree}" ]] || fail "local develop worktree was not found"
+[[ -z "$(git -C "${develop_worktree}" status --short)" ]] ||
+  fail "develop worktree has uncommitted changes; clean it before finishing PR #${pr_number}: ${develop_worktree}"
 
 feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
 
