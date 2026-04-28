@@ -9,7 +9,7 @@
 - `main` 브랜치에서 `src/`를 직접 수정하지 마라.
 - 구현 전에 반드시 `AGENTS.md -> ARCHITECTURE.md -> docs/index.md -> 작업 관련 docs` 순서로 읽는다.
 - test 작성과 검증 실행은 절대 건너뛸 수 없다.
-- commit message는 반드시 `[feat] 설명` 형식을 따른다.
+- commit message는 반드시 Conventional Commits 형식을 따르고, `[feat] 설명` 형식을 사용한다.
 
 ## 1단계: EXEC_PLAN 생성
 - 시작 명령: `scripts/task/init-task.sh <slug> "[title]"`
@@ -21,6 +21,7 @@
 - 생성된 `EXEC_PLAN`에는 아래가 비어 있으면 안 된다.
   - Required Reads
   - Related Docs
+  - Related Feature IDs
   - Doc Notes
   - Goal
   - Approach
@@ -35,6 +36,8 @@
   - `docs/index.md`
   - 작업 관련 docs
 - 읽은 문서는 반드시 `EXEC_PLAN`의 `Required Reads`, `Related Docs`, `Doc Notes`에 남긴다.
+- 제품 기능 작업은 `EXEC_PLAN`의 `Related Feature IDs`에 실제 `feature_id`를 남긴다.
+- 하네스/인프라 작업은 `Related Feature IDs`에 `n/a-harness`를 사용할 수 있다.
 - main 브랜치에서는 `src/`를 직접 수정하지 않는다.
 
 ## 3단계: Test 작성
@@ -72,7 +75,8 @@
 - 머지 전에는 반드시 `scripts/task/verify-pr-ready.sh <PR_NUMBER>` 를 실행한다.
 - 이 게이트는 draft PR, requested changes, 미해결 review thread, pending/failing check, 충돌 상태를 차단한다.
 - 실패 원인과 해결 과정은 repo `EXEC_PLAN`과 Obsidian `04 Errors/Error Ledger.md` 또는 `05 Handoffs/Current State.md`에 남긴다.
-- 게이트 통과 후에만 merge commit 방식으로 `develop`에 병합한다.
+- 게이트 통과 후에는 `scripts/task/finish-pr.sh <PR_NUMBER>` 로 merge commit 병합, `develop` worktree 갱신, feature worktree 제거, local/remote branch 삭제를 한 번에 마무리한다.
+- GitHub review thread를 코드/테스트/문서로 이미 처리했지만 unresolved 상태만 남은 경우에만 `scripts/task/finish-pr.sh --resolve-threads <PR_NUMBER>` 를 사용할 수 있다.
 
 ## 관련 문서
 - 구조 요약: `ARCHITECTURE.md`

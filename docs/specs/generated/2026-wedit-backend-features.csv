@@ -1,0 +1,51 @@
+feature_id,backend_scope,capability,domain_owner,source_main,source_sub,item_name,summary,priority,backend_difficulty,source_file,source_row
+auth-google-login,backend_owned,authentication,member,1.로그인,1.1 로그인,로그인,구글 OAuth를 통한 간편 로그인/회원가입 지원,4,중,docs/specs/sources/2026-wedit-feature-spec.csv,2
+auth-signup-wedding-date,backend_owned,authentication,member,1.로그인,1.2 회원가입,회원가입,yyyy-mm-dd 형식으로 본식일 또는 예정일 입력,4,중,docs/specs/sources/2026-wedit-feature-spec.csv,3
+nav-home-button,out_of_scope_for_backend,navigation,frontend,2.내비게이션,2.1 홈,홈 버튼,홈 창 이동,4,하,docs/specs/sources/2026-wedit-feature-spec.csv,4
+nav-invitation-button,out_of_scope_for_backend,navigation,frontend,2.내비게이션,2.2 청첩장,청첩장 버튼,청첩장 이동,4,하,docs/specs/sources/2026-wedit-feature-spec.csv,5
+nav-tour-journal-button,out_of_scope_for_backend,navigation,frontend,2.내비게이션,2.3 투어일기,투어일기 버튼,클릭 시 투어일기 창 이동,4,하,docs/specs/sources/2026-wedit-feature-spec.csv,6
+nav-my-page-button,out_of_scope_for_backend,navigation,frontend,2.내비게이션,2.4 마이,마이 버튼,클릭 시 마이 창 이동,4,하,docs/specs/sources/2026-wedit-feature-spec.csv,7
+home-quote-entry-button,out_of_scope_for_backend,navigation,frontend,3.홈,3.1 견적서,견적서 버튼,클릭 시 견적서 창 이동,4,중,docs/specs/sources/2026-wedit-feature-spec.csv,8
+home-quote-card-summary,backend_shared,quote-home,quote,3.홈,3.1 견적서,견적서 카드,카드 내용들,4,,docs/specs/sources/2026-wedit-feature-spec.csv,9
+home-quote-weddinghall-list,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.1 견적서 창 : 웨딩홀 리스트 +선택버튼,담긴 업체 리스트 나열,4,,docs/specs/sources/2026-wedit-feature-spec.csv,10
+home-quote-studio-list,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.2 견적서 창 : 스튜디오 리스트  + 선택버튼,담긴 업체 리스트 나열,4,,docs/specs/sources/2026-wedit-feature-spec.csv,11
+home-quote-dress-list,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.3 견적서 창 : 드레스샵 리스트+ 선택버튼,담긴 업체 리스트 나열,4,,docs/specs/sources/2026-wedit-feature-spec.csv,12
+home-quote-makeup-list,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.4 견적서 창 : 메이크업샵 리스트+ 선택버튼,담긴 업체 리스트 나열,4,,docs/specs/sources/2026-wedit-feature-spec.csv,13
+home-quote-soldout-status,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.5 견적서 창 : 마감,견적서에 담은 업체 中 예약마감인것 표시 (품절느낌),1,,docs/specs/sources/2026-wedit-feature-spec.csv,14
+home-quote-total,backend_owned,quote-home,quote,3.홈,3.1 견적서,3.1.6 견적서 창 : 총합,선택된 업체들 가격 합산 계산값 표시,4,,docs/specs/sources/2026-wedit-feature-spec.csv,15
+home-recommendation-list,backend_owned,vendor-discovery,vendor,3.홈,3.2 추천,에디터 추천 게시물,리스트 나열,1,하,docs/specs/sources/2026-wedit-feature-spec.csv,16
+home-recommendation-detail-navigation,out_of_scope_for_backend,navigation,frontend,3.홈,3.2 추천,에디터 추천게시물 클릭,추천샵 디테일 페이지로 이동,1,,docs/specs/sources/2026-wedit-feature-spec.csv,17
+home-search-hub-navigation,out_of_scope_for_backend,navigation,frontend,3.홈,3.3 검색,카테고리별 개별 검색 공간 이동,각 카테고리 검색 창으로 이동,4,중,docs/specs/sources/2026-wedit-feature-spec.csv,18
+home-search-weddinghall,backend_owned,vendor-discovery,vendor,3.홈,3.3 검색,3.3.1 웨딩홀 검색,조건 기반 웨딩홀 탐색,4,,docs/specs/sources/2026-wedit-feature-spec.csv,19
+home-search-studio,backend_owned,vendor-discovery,vendor,3.홈,3.3 검색,3.3.2스튜디오 검색,조건 기반 스튜디오 탐색,4,,docs/specs/sources/2026-wedit-feature-spec.csv,20
+home-search-dress,backend_owned,vendor-discovery,vendor,3.홈,3.3 검색,3.3.3 드레스샵 검색,조건 기반 드레스 탐색,4,,docs/specs/sources/2026-wedit-feature-spec.csv,21
+home-search-makeup,backend_owned,vendor-discovery,vendor,3.홈,3.3 검색,3.3.4 메이크업샵 검색,조건 기반 메이크업샵 탐색,4,,docs/specs/sources/2026-wedit-feature-spec.csv,22
+tour-journal-list-display,backend_owned,tour-journal,tour-journal,4.투어일지,4.1 드레스 투어,기록한 리스트들 표시,작성일시 기반으로 오름차순,2,,docs/specs/sources/2026-wedit-feature-spec.csv,23
+tour-journal-delete,backend_owned,tour-journal,tour-journal,4.투어일지,4.1 드레스 투어,드레스 삭제,드레스 스케치 삭제,2,,docs/specs/sources/2026-wedit-feature-spec.csv,24
+tour-journal-sketch-navigation,out_of_scope_for_backend,navigation,frontend,4.투어일지,4.1 드레스 투어,> 버튼 누르면 5.2로,드레스 스케치로 이동,2,,docs/specs/sources/2026-wedit-feature-spec.csv,25
+dress-sketch-base-body,out_of_scope_for_backend,dress-sketch,frontend,4.투어일지,4.2 드레스 스케치,5.2.1 기본 몸 이미지,5.2.1 기본 몸 이미지,4,상,docs/specs/sources/2026-wedit-feature-spec.csv,26
+dress-sketch-line-style,out_of_scope_for_backend,dress-sketch,frontend,4.투어일지,4.2 드레스 스케치,5.2.2 라인(A라인/벨라인/슬림라인 ),각 종류 中 택1 →도안에 입혀짐,4,,docs/specs/sources/2026-wedit-feature-spec.csv,27
+dress-sketch-neckline,out_of_scope_for_backend,dress-sketch,frontend,4.투어일지,4.2 드레스 스케치,5.2.3 넥라인(라운드/스퀘어/브이/오픈숄더/일자/하트/홀터),5.2.3 넥라인(라운드/스퀘어/브이/오픈숄더/일자/하트/홀터),4,,docs/specs/sources/2026-wedit-feature-spec.csv,28
+dress-sketch-material,out_of_scope_for_backend,dress-sketch,frontend,4.투어일지,4.2 드레스 스케치,5.2.4 소재(비즈/실크/쉬폰/레이스),5.2.4 소재(비즈/실크/쉬폰/레이스),4,,docs/specs/sources/2026-wedit-feature-spec.csv,29
+profile-basic-info,backend_owned,profile,member,5.마이,5.1 프로필 화면,프로필 정보 표시,"사용자 이름, 프사는 개인설정 불가, 그냥 기본이미지로",4,하,docs/specs/sources/2026-wedit-feature-spec.csv,30
+profile-d-day,backend_owned,profile,member,5.마이,5.1 프로필 화면,디데이,결혼 예정일까지 디데이,4,하,docs/specs/sources/2026-wedit-feature-spec.csv,31
+invitation-create-entry,backend_shared,invitation,invitation,5.마이,5.4 청첩장,청첩장 제작 버튼,청첩장 제작(만든 청첩장 x인경우),,,docs/specs/sources/2026-wedit-feature-spec.csv,32
+invitation-preview,backend_shared,invitation,invitation,5.마이,5.4 청첩장,미리보기 버튼,현재까지 적용된 선택사함 볼수 있는 미리보기 버튼,,,docs/specs/sources/2026-wedit-feature-spec.csv,33
+invitation-theme,backend_owned,invitation,invitation,5.마이,5.4 청첩장,테마,테마,,,docs/specs/sources/2026-wedit-feature-spec.csv,34
+invitation-basic-info,backend_owned,invitation,invitation,5.마이,5.4 청첩장,기본정보,기본정보,,,docs/specs/sources/2026-wedit-feature-spec.csv,35
+invitation-greeting,backend_owned,invitation,invitation,5.마이,5.4 청첩장,인사말,인사말,,,docs/specs/sources/2026-wedit-feature-spec.csv,36
+invitation-ceremony-datetime,backend_owned,invitation,invitation,5.마이,5.4 청첩장,예식일시,예식일시,,,docs/specs/sources/2026-wedit-feature-spec.csv,37
+invitation-venue,backend_owned,invitation,invitation,5.마이,5.4 청첩장,예식장소,예식장소,,,docs/specs/sources/2026-wedit-feature-spec.csv,38
+invitation-transportation,backend_owned,invitation,invitation,5.마이,5.4 청첩장,교통수단,교통수단,,,docs/specs/sources/2026-wedit-feature-spec.csv,39
+invitation-gallery,backend_owned,invitation,invitation,5.마이,5.4 청첩장,갤러리,갤러리,,,docs/specs/sources/2026-wedit-feature-spec.csv,40
+invitation-ending-locked-content,backend_owned,invitation,invitation,5.마이,5.4 청첩장,엔딩 사진/문구(잠금!),엔딩 사진/문구(잠금!),,,docs/specs/sources/2026-wedit-feature-spec.csv,41
+invitation-bank-account,backend_owned,invitation,invitation,5.마이,5.4 청첩장,계좌번호,계좌번호,,,docs/specs/sources/2026-wedit-feature-spec.csv,42
+invitation-rsvp,backend_owned,invitation,invitation,5.마이,5.4 청첩장,참석여부,참석여부,,,docs/specs/sources/2026-wedit-feature-spec.csv,43
+invitation-share,backend_shared,invitation,invitation,5.마이,5.4 청첩장,공유하기,공유하기,,,docs/specs/sources/2026-wedit-feature-spec.csv,44
+invitation-bgm-partyroom-locked-content,backend_owned,invitation,invitation,5.마이,5.4 청첩장,배경음악/파티룸(잠금!),배경음악/파티룸(잠금!),,,docs/specs/sources/2026-wedit-feature-spec.csv,45
+vendor-pricing-option-selection,backend_owned,vendor-pricing,vendor,6.업체페이지-가격보기,6.1 가격보기,원하는 대행업체→옵션 클릭(기본→추가),원하는 대행업체→옵션 클릭(기본→추가),2,상,docs/specs/sources/2026-wedit-feature-spec.csv,46
+vendor-quote-add,backend_owned,vendor-pricing,quote,6.업체페이지-가격보기,6.3 견적서 넣기 버튼,견적서담기,선택한 업체를 견적서에 담기(견적서창에 추가되어야함),4,,docs/specs/sources/2026-wedit-feature-spec.csv,47
+vendor-calendar-add,backend_shared,vendor-pricing,external-integration,6.업체페이지-가격보기,6.4 달력에 추가 버튼,달력에 일정추가,구글 캘린더 연동,4,,docs/specs/sources/2026-wedit-feature-spec.csv,48
+vendor-detail-main-photo,backend_owned,vendor-detail,vendor,7.디테일,7.1 메인사진,,,0,,docs/specs/sources/2026-wedit-feature-spec.csv,49
+vendor-detail-summary,backend_owned,vendor-detail,vendor,7.디테일,7.2 업체명 및 소개글,업체측에서 가져온 데이터,업체측에서 가져온 데이터,4,,docs/specs/sources/2026-wedit-feature-spec.csv,50
+vendor-detail-gallery-and-location,backend_owned,vendor-detail,vendor,7.디테일,7.4 업체측 상세컷 및 설명,상세컷 및 설명 (위치포함),상세컷 스크롤+위치에 지도연결,1,,docs/specs/sources/2026-wedit-feature-spec.csv,51

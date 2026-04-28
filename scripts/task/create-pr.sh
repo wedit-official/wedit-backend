@@ -62,6 +62,7 @@ Closes #${ISSUE_NUMBER}
 - [ ] Automated PR review has completed.
 - [ ] Every actionable PR review comment/thread is addressed and resolved.
 - [ ] \`scripts/task/verify-pr-ready.sh <PR_NUMBER>\` passes before merge.
+- [ ] \`scripts/task/finish-pr.sh <PR_NUMBER>\` completes merge, develop sync, worktree removal, and branch cleanup.
 EOF
 
 gh pr create \

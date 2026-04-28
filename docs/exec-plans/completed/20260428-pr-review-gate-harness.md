@@ -6,7 +6,7 @@
 - Worktree: `<WORKTREE_BASE>/pr-review-gate-harness`
 - Port: `18080`
 - Log dir: `<LOG_BASE>/pr-review-gate-harness`
-- Status: `draft`
+- Status: `completed-on-develop`
 
 ## Required Reads
 - [x] AGENTS.md
@@ -41,3 +41,12 @@
 - PR body includes the review-gate checklist.
 - Repo docs and Obsidian notes describe detailed failure logging.
 - Full local verification passes.
+
+## Verification
+- [x] `./gradlew check build --no-daemon`
+- [x] PR review gate shell tests
+
+## Completion
+- Merged into `develop` through PR #16.
+- Merge commit: `107f40c`.
+- The clean merged worktree may be removed during harness consistency cleanup.

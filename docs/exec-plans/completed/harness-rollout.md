@@ -1,5 +1,7 @@
 # Harness Rollout
 
+- Status: `completed-on-develop`
+
 ## 목표
 - Codex가 이 저장소에서 구현 전후로 항상 같은 검증 루프를 돌릴 수 있게 만든다.
 
@@ -20,3 +22,7 @@
 - OAuth 실제 로그인 하네스 확장
 - 문서 자동 검증 job 추가
 - 품질 스코어 자동화
+
+## Completion
+- Superseded by the current strict workflow, Docker packaging gate, PR review gate, and feature-spec harness.
+- Historical rollout context is retained here; active work belongs in `docs/exec-plans/active/`.

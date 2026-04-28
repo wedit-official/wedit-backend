@@ -6,7 +6,7 @@
 - Worktree: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/vendor-crud-domain`
 - Port: `18080`
 - Log dir: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-logs/vendor-crud`
-- Status: `in_progress`
+- Status: `completed-on-develop`
 
 ## Required Reads
 - [x] AGENTS.md
@@ -42,3 +42,8 @@
 - `api/vendor` 계층에 CRUD 엔드포인트가 존재하고 업종별 필드를 포함한 생성/조회/수정이 가능하다.
 - 삭제 요청 시 업체는 비활성화되고 목록/조회 동작이 기대한 정책을 따른다.
 - 정상 동작, 엣지 케이스, 입력 검증 테스트가 추가되고 전체 검증 명령이 통과한다.
+
+## Completion
+- Merged into `develop` through PR #10.
+- Merge commit: `7a38b68`.
+- Follow-up vendor detail work is tracked in `20260426-vendor-detail-crud-api.md`.

@@ -6,7 +6,7 @@
 - Worktree: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/vendor-detail-crud-api`
 - Port: `18080`
 - Log dir: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/wedit-backend-logs/vendor-detail-crud-api`
-- Status: `verified`
+- Status: `completed-on-develop`
 
 ## Required Reads
 - [x] AGENTS.md
@@ -18,7 +18,7 @@
 - [x] docs/testing/codex-harness.md
 - [x] docs/specs/2026-wedit-backend-capabilities.md
 - [x] docs/specs/2026-wedit-backend-coverage-matrix.md
-- [x] docs/exec-plans/active/20260425-vendor-crud.md
+- [x] docs/exec-plans/completed/20260425-vendor-crud.md
 
 ## Related Feature IDs
 - [x] vendor-detail-main-photo
@@ -62,3 +62,8 @@
 - [x] `./gradlew test --tests com.wedit.backend.api.vendor.VendorDetailCrudIntegrationTest --no-daemon`
 - [x] `python3 scripts/specs/verify_feature_harness.py`
 - [x] `./gradlew check build --no-daemon`
+
+## Completion
+- Merged into `develop` through PR #12.
+- Merge commit: `f2a0884`.
+- This cleanup reintroduced the coverage matrix on `develop` and marked the three vendor detail feature rows as `implemented`.
