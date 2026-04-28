@@ -205,6 +205,38 @@ cat > "${sandbox}/docs/exec-plans/active/20260425-hook-check.md" <<EOF
 - [x] docs/testing/codex-harness.md
 
 ## Related Feature IDs
+- [x] todo
+
+## Doc Notes
+- H2 기반 test profile과 표준 검증 명령을 유지해야 한다.
+
+## Goal
+- Hook 규칙을 검증한다.
+
+## Approach
+- sandbox 저장소에서 staged 변경을 만든다.
+
+## Step Plan
+- pre-commit을 통과하는 케이스를 만든다.
+
+## Done Criteria
+- pre-commit이 성공한다.
+EOF
+
+assert_command_fails "${TEST_ROOT}/scripts/hooks/pre-commit.sh"
+
+cat > "${sandbox}/docs/exec-plans/active/20260425-hook-check.md" <<EOF
+# EXEC_PLAN: Hook Check
+
+## Required Reads
+- [x] AGENTS.md
+- [x] ARCHITECTURE.md
+- [x] docs/index.md
+
+## Related Docs
+- [x] docs/testing/codex-harness.md
+
+## Related Feature IDs
 - [x] n/a-harness
 
 ## Doc Notes

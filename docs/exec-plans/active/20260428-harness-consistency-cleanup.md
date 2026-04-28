@@ -28,11 +28,13 @@
 - The feature-spec harness exists on `codex/spec-harness-release`, but its `docs/specs`, `scripts/specs`, and `Related Feature IDs` flow are not fully present on `develop`.
 - Obsidian notes are intentionally named `Wedit Backend Overview.md` and `2026 Wedit Backend Spec.md`; validator behavior should recognize those names instead of forcing alias note creation or renames.
 - Several historical worktrees are dirty or not trivially merged; cleanup must preserve them and document their state instead of deleting user work.
+- PR completion should not stop at merge: after the review gate passes, the harness must update local `develop`, remove the feature worktree, and delete local/remote feature branches.
 
 ## Goal
 - Make the Wedit harness internally consistent across validator, repo docs, task scripts, feature-spec tracking, active/completed EXEC_PLANs, and Obsidian handoff state.
 - Reintegrate feature-spec coverage validation into the current `develop` verification loop without changing application public API or domain code.
 - Clean only safe stale worktree/task-state artifacts and preserve dirty worktrees.
+- Add a PR finish command that composes review readiness verification, merge commit, `develop` sync, feature worktree removal, and branch cleanup.
 
 ## Approach
 - Patch the reusable project harness validator so custom Wedit Obsidian note names satisfy the expected dashboard/spec template roles.
@@ -40,6 +42,7 @@
 - Add `Related Feature IDs` generation and enforcement, allowing `n/a-harness` for harness/infrastructure work.
 - Move completed/stale active EXEC_PLANs into `docs/exec-plans/completed` and update docs/Obsidian state to describe the new operating model.
 - Remove only the clean, already-merged PR review gate worktree and stale ignored task-state tied to completed work.
+- Add `finish-pr.sh` after `verify-pr-ready.sh` so the strict workflow has a single finish path for merge and cleanup.
 
 ## Step Plan
 - Add and wire the spec harness files and tests.
@@ -49,6 +52,7 @@
 - Update Obsidian Current State with preserved worktrees and cleanup results.
 - Run spec harness, shell tests, full Gradle verification, and project harness validation.
 - Commit with `[feat] 하네스 일관성 정리` and create a `develop` PR.
+- Address automated review comments, add finish-flow automation, and rerun the full verification loop.
 
 ## Done Criteria
 - `python3 scripts/specs/verify_feature_harness.py` passes.
@@ -57,6 +61,7 @@
 - `project_harness.py validate ... --project-name Wedit` no longer fails because of Wedit custom Obsidian note names.
 - Stale completed EXEC_PLANs are no longer under active.
 - Dirty worktrees remain untouched and are documented in Obsidian handoff.
+- PR completion flow can merge a ready PR, update local `develop`, remove the feature worktree, and delete local/remote branches.
 
 ## Verification
 - [x] `python3 scripts/specs/verify_feature_harness.py`
@@ -64,3 +69,5 @@
 - [x] `python3 /Users/hyunwoo/.codex/skills/project-harness-obsidian/scripts/project_harness.py validate /Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/harness-consistency-cleanup --project-name Wedit`
 - [x] `python3 /Users/hyunwoo/.codex/skills/project-harness-obsidian/scripts/project_harness.py plan /Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/harness-consistency-cleanup --project-name Wedit`
 - [x] `./gradlew check build --no-daemon`
+- [x] Review feedback regression pass after Gemini comments
+- [x] Finish-flow automation regression pass

@@ -155,8 +155,9 @@ def validate_matrix(
             if not test_paths:
                 raise ValueError(f"{feature_id} is implemented but has no test evidence.")
 
-        if row["next_step"].strip() in {"", "-"}:
-            raise ValueError(f"{feature_id} must include a next_step entry.")
+        next_step = row["next_step"].strip()
+        if len(next_step) < 5 or next_step.lower() in {"", "-", "tbd", "todo"}:
+            raise ValueError(f"{feature_id} must include a meaningful next_step entry.")
 
     missing_ids = sorted(set(generated_by_id) - seen_ids)
     if missing_ids:

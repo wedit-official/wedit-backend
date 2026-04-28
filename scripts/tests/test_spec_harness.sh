@@ -10,8 +10,10 @@ workdir="$(mktemp -d)"
 trap 'rm -rf "${workdir}"' EXIT
 
 raw_csv="${workdir}/raw.csv"
+raw_missing_context_csv="${workdir}/raw-missing-context.csv"
 generated_csv="${workdir}/generated.csv"
 matrix_file="${workdir}/matrix.md"
+normalize_error="${workdir}/normalize-error.txt"
 
 cat > "${raw_csv}" <<'EOF'
 세부 기능 (1),세부적인 구분,구분,부가설명,우선순위,구현난이도,백엔드 난이도,날짜,상태,상태 1
@@ -31,6 +33,21 @@ assert_contains 'auth-signup-wedding-date' "${generated_csv}"
 assert_contains 'nav-home-button' "${generated_csv}"
 assert_contains 'out_of_scope_for_backend' "${generated_csv}"
 assert_contains 'home-search-weddinghall' "${generated_csv}"
+
+cat > "${raw_missing_context_csv}" <<'EOF'
+세부 기능 (1),세부적인 구분,구분,부가설명,우선순위,구현난이도,백엔드 난이도,날짜,상태,상태 1
+,,로그인,구글 OAuth를 통한 간편 로그인/회원가입 지원,4,중,중,,시작 전,시작 전
+EOF
+
+if python3 "${TEST_ROOT}/scripts/specs/normalize_feature_spec.py" \
+  --raw "${raw_missing_context_csv}" \
+  --output "${workdir}/missing-context-generated.csv" \
+  >"${normalize_error}" 2>&1; then
+  fail "expected missing section context to fail normalization"
+fi
+assert_contains 'Spec row 2 is missing section context' "${normalize_error}"
+assert_contains 'main:' "${normalize_error}"
+assert_contains 'sub:' "${normalize_error}"
 
 cat > "${matrix_file}" <<'EOF'
 # Matrix
@@ -64,6 +81,28 @@ assert_command_fails python3 "${TEST_ROOT}/scripts/specs/verify_feature_harness.
   --generated "${generated_csv}" \
   --matrix "${matrix_file}" \
   --repo-root "${TEST_ROOT}"
+
+cat > "${matrix_file}" <<'EOF'
+# Matrix
+
+| feature_id | capability | domain_owner | status | implementation_evidence | test_evidence | next_step |
+| --- | --- | --- | --- | --- | --- | --- |
+| auth-google-login | authentication | member | gap | - | - | TODO |
+| auth-signup-wedding-date | authentication | member | gap | - | - | 회원가입 요청/엔티티에 예식일 필드를 추가한다. |
+| nav-home-button | navigation | frontend | out_of_scope_for_backend | - | - | 프론트 라우팅으로만 유지한다. |
+| home-search-weddinghall | vendor-discovery | vendor | planned | src/main/java/com/wedit/backend/api/vendor/entity/WeddingHall.java | - | 검색 API와 필터 계약을 정의한다. |
+EOF
+
+next_step_error="${workdir}/next-step-error.txt"
+if python3 "${TEST_ROOT}/scripts/specs/verify_feature_harness.py" \
+  --raw "${raw_csv}" \
+  --generated "${generated_csv}" \
+  --matrix "${matrix_file}" \
+  --repo-root "${TEST_ROOT}" \
+  >"${next_step_error}" 2>&1; then
+  fail "expected placeholder next_step to fail verification"
+fi
+assert_contains 'meaningful next_step' "${next_step_error}"
 
 cat > "${matrix_file}" <<'EOF'
 # Matrix

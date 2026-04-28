@@ -75,7 +75,8 @@
 - 머지 전에는 반드시 `scripts/task/verify-pr-ready.sh <PR_NUMBER>` 를 실행한다.
 - 이 게이트는 draft PR, requested changes, 미해결 review thread, pending/failing check, 충돌 상태를 차단한다.
 - 실패 원인과 해결 과정은 repo `EXEC_PLAN`과 Obsidian `04 Errors/Error Ledger.md` 또는 `05 Handoffs/Current State.md`에 남긴다.
-- 게이트 통과 후에만 merge commit 방식으로 `develop`에 병합한다.
+- 게이트 통과 후에는 `scripts/task/finish-pr.sh <PR_NUMBER>` 로 merge commit 병합, `develop` worktree 갱신, feature worktree 제거, local/remote branch 삭제를 한 번에 마무리한다.
+- GitHub review thread를 코드/테스트/문서로 이미 처리했지만 unresolved 상태만 남은 경우에만 `scripts/task/finish-pr.sh --resolve-threads <PR_NUMBER>` 를 사용할 수 있다.
 
 ## 관련 문서
 - 구조 요약: `ARCHITECTURE.md`

@@ -126,7 +126,10 @@ def load_raw_rows(raw_path: Path) -> list[dict[str, str]]:
                 current_sub = maybe_sub
 
             if not current_main or not current_sub:
-                raise ValueError(f"Spec row {source_row} is missing section context.")
+                raise ValueError(
+                    f"Spec row {source_row} is missing section context "
+                    f"(main: {current_main}, sub: {current_sub})."
+                )
 
             item_name = clean_text(row.get("구분"))
             if item_name is None:

@@ -281,7 +281,7 @@ plan_has_checked_feature_id() {
       line = $0
       sub(/^[[:space:]]*-[[:space:]]*\[x\][[:space:]]+/, "", line)
       gsub(/`/, "", line)
-      if (line ~ /^(n\/a-harness|[a-z0-9][a-z0-9-]*)$/ && line !~ /^(feature-id|TBD|TODO)$/) {
+      if (line ~ /^(n\/a-harness|[a-z0-9][a-z0-9-]*)$/ && tolower(line) !~ /^(feature-id|tbd|todo)$/) {
         found = 1
         exit 0
       }

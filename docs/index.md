@@ -27,5 +27,6 @@
 - 하네스/인프라 작업은 `EXEC_PLAN`의 `Related Feature IDs`에 `n/a-harness`를 기록합니다.
 - 작업에 사용한 관련 문서는 `EXEC_PLAN`의 `Related Docs`와 `Doc Notes`에 남겨야 합니다.
 - PR merge 전에는 자동 PR review comment/thread를 모두 해결하고 `scripts/task/verify-pr-ready.sh`를 통과해야 합니다.
+- PR 완료는 `scripts/task/finish-pr.sh <PR_NUMBER>`로 수행해 merge, `develop` 동기화, feature worktree 제거, branch 삭제를 한 번에 끝냅니다.
 - 재발 가능한 CI/리뷰/하네스 실패는 Obsidian Error Ledger에 증상, 원인, 수정, 다음 체크포인트까지 남깁니다.
 - 긴 설명보다 실행 가능한 계약을 문서에 남깁니다.
