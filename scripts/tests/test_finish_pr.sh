@@ -148,6 +148,31 @@ if GH_STALE_SUBAGENT_MARKER=1 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${sta
 fi
 assert_contains 'missing Codex subagent review pass marker' "${stale_subagent_output}"
 
+dirty_worktree_output="${workdir}/dirty-worktree.txt"
+printf 'local scratch\n' > "${feature_worktree}/scratch.txt"
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${dirty_worktree_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject dirty feature worktrees before merge"
+fi
+assert_contains 'feature worktree has uncommitted changes' "${dirty_worktree_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "dirty feature worktree should block before merge"
+fi
+rm -f "${feature_worktree}/scratch.txt"
+
+locked_worktree_output="${workdir}/locked-worktree.txt"
+git -C "${sandbox}" worktree lock --reason "test lock" "${feature_worktree}"
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${locked_worktree_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject locked feature worktrees before merge"
+fi
+assert_contains 'feature worktree is locked' "${locked_worktree_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "locked feature worktree should block before merge"
+fi
+git -C "${sandbox}" worktree unlock "${feature_worktree}"
+
+: > "${gh_calls_file}"
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
 assert_output_contains 'Automated review bot activity detected' "${finish_output}"
 assert_output_contains 'PR #7 merged and cleaned up' "${finish_output}"
