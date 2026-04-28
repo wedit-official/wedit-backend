@@ -3,9 +3,9 @@
 - Task slug: `local-config-datasource`
 - Base branch: `develop`
 - Feature branch: `codex/local-config-datasource`
-- Worktree: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/local-config-datasource`
+- Worktree: `../wedit-backend-worktrees/local-config-datasource`
 - Port: `18081`
-- Log dir: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-logs/local-config-datasource`
+- Log dir: `../wedit-backend-logs/local-config-datasource`
 - Status: `completed`
 
 ## Required Reads
@@ -48,3 +48,4 @@ Add `config/src/main/resources/application-local.yml` with local MySQL datasourc
 - Review follow-up: removed the hardcoded local DB password fallback and verified the config contract rejects that leaked default.
 - `./gradlew copyConfig --no-daemon && ./gradlew test --tests com.wedit.backend.config.LocalConfigContractTest --no-daemon`: passed after review follow-up.
 - `./gradlew check build --no-daemon`: passed after review follow-up. Docker image build was skipped by the existing harness because Docker is not available locally.
+- Review follow-up: replaced personal absolute paths with repository-relative paths, tightened datasource URL placeholder assertions, and removed redundant raw file string checks.

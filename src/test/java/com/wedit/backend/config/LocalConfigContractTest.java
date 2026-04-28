@@ -15,13 +15,18 @@ import java.util.Properties;
 class LocalConfigContractTest {
 
     private static final Path LOCAL_CONFIG = Path.of("config/src/main/resources/application-local.yml");
+    private static final String LOCAL_DB_URL = "jdbc:mysql://localhost:3306/wedit?"
+            + "serverTimezone=Asia/Seoul&characterEncoding=UTF-8&sessionVariables="
+            + "sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'";
 
     @Test
     void localProfileDefinesMysqlDatasource() {
         Properties properties = loadLocalConfig();
 
-        assertTrue(properties.getProperty("spring.datasource.url").startsWith("${LOCAL_DB_URL:jdbc:mysql://localhost:3306/wedit"));
+        assertEquals("${LOCAL_DB_URL:" + LOCAL_DB_URL + "}", properties.getProperty("spring.datasource.url"));
         assertEquals("${LOCAL_DB_USERNAME:root}", properties.getProperty("spring.datasource.username"));
+        assertEquals("${LOCAL_DB_PASSWORD:}", properties.getProperty("spring.datasource.password"));
+        assertFalse(properties.getProperty("spring.datasource.password").contains("ohw62459930"));
         assertEquals("com.mysql.cj.jdbc.Driver", properties.getProperty("spring.datasource.driver-class-name"));
     }
 
@@ -33,16 +38,6 @@ class LocalConfigContractTest {
         assertRequiredProperty(properties, "spring.datasource.username");
         assertRequiredProperty(properties, "spring.datasource.password");
         assertRequiredProperty(properties, "spring.datasource.driver-class-name");
-    }
-
-    @Test
-    void localDatasourceCanBeOverriddenByEnvironment() throws Exception {
-        String localConfig = Files.readString(LOCAL_CONFIG);
-
-        assertTrue(localConfig.contains("${LOCAL_DB_URL:"));
-        assertTrue(localConfig.contains("${LOCAL_DB_USERNAME:"));
-        assertTrue(localConfig.contains("${LOCAL_DB_PASSWORD:}"));
-        assertFalse(localConfig.contains("ohw62459930"));
     }
 
     private static Properties loadLocalConfig() {
