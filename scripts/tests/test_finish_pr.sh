@@ -38,7 +38,7 @@ printf '%s\n' "$*" >> "${GH_CALLS_FILE}"
 if [[ "$1" == "pr" && "$2" == "view" ]]; then
   reviewer_login="${GH_REVIEWER_LOGIN:-gemini-code-assist[bot]}"
   cat <<JSON
-{"number":7,"url":"https://github.com/example/repo/pull/7","state":"OPEN","id":"PR_node_7","headRefName":"codex/finish-pr","baseRefName":"develop","isDraft":false,"reviewDecision":"${GH_REVIEW_DECISION:-}","reviews":[{"author":{"login":"${reviewer_login}"},"state":"COMMENTED"}],"comments":[],"mergeStateStatus":"${GH_MERGE_STATE:-CLEAN}"}
+{"number":7,"url":"https://github.com/example/repo/pull/7","state":"OPEN","id":"PR_node_7","headRefName":"codex/finish-pr","baseRefName":"develop","isDraft":false,"reviewDecision":"${GH_REVIEW_DECISION:-}","commits":[{"oid":"HEAD_oid","committedDate":"2026-04-28T01:00:00Z"}],"reviews":[{"author":{"login":"${reviewer_login}"},"state":"COMMENTED","submittedAt":"2026-04-28T01:05:00Z","commit":{"oid":"HEAD_oid"}}],"comments":[],"mergeStateStatus":"${GH_MERGE_STATE:-CLEAN}"}
 JSON
   exit 0
 fi
@@ -89,7 +89,7 @@ fi
 assert_contains 'unresolved PR review threads' "${unresolved_output}"
 
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
-assert_output_contains 'Automated review bot activity detected' "${finish_output}"
+assert_output_contains 'Automated review bot activity detected for latest PR head' "${finish_output}"
 assert_output_contains 'PR #7 merged and cleaned up' "${finish_output}"
 assert_contains 'pr merge 7 --merge' "${gh_calls_file}"
 [[ ! -d "${feature_worktree}" ]] || fail "expected feature worktree to be removed"

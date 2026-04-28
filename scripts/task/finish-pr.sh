@@ -81,14 +81,25 @@ review_bot_has_activity() {
   local pr="$1"
   local review_bot_regex="${STRICT_REVIEW_BOT_REGEX:-[Gg]emini|gemini-code-assist}"
 
-  gh pr view "${pr}" --json reviews,comments |
+  gh pr view "${pr}" --json reviews,comments,commits |
     jq -e --arg regex "${review_bot_regex}" '
-      [
-        (.reviews // [])[]?.author.login,
-        (.comments // [])[]?.author.login
-      ]
-      | map(select(. != null))
-      | any(test($regex))
+      (.commits // [])[-1] as $head
+      | ($head.oid // "") as $head_oid
+      | ($head.committedDate // "") as $head_time
+      | ($head_oid != "")
+        and (
+          any((.reviews // [])[]?;
+            ((.author.login // "") | test($regex))
+            and (
+              ((.commit.oid // "") == $head_oid)
+              or ((.submittedAt // "") >= $head_time)
+            )
+          )
+          or any((.comments // [])[]?;
+            ((.author.login // "") | test($regex))
+            and ((.createdAt // "") >= $head_time)
+          )
+        )
     ' >/dev/null
 }
 
@@ -102,7 +113,7 @@ wait_for_review_bot_activity() {
   start="$(date '+%s')"
   while true; do
     if review_bot_has_activity "${pr}"; then
-      printf 'Automated review bot activity detected for PR %s (regex: %s)\n' "${pr}" "${review_bot_regex}"
+      printf 'Automated review bot activity detected for latest PR head %s (regex: %s)\n' "${pr}" "${review_bot_regex}"
       return 0
     fi
 
@@ -194,7 +205,8 @@ git -C "${develop_worktree}" checkout develop >/dev/null
 git -C "${develop_worktree}" pull --ff-only "${remote_name}" develop
 
 if [[ -n "${feature_worktree}" && "${feature_worktree}" != "${develop_worktree}" ]]; then
-  git -C "${develop_worktree}" worktree remove "${feature_worktree}"
+  cd "${develop_worktree}"
+  git worktree remove "${feature_worktree}"
 fi
 
 if git -C "${develop_worktree}" show-ref --verify --quiet "refs/heads/${head_branch}"; then

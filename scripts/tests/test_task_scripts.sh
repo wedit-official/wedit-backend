@@ -43,6 +43,9 @@ assert_contains '## Approach' "${EXEC_PLAN}"
 assert_contains '## Step Plan' "${EXEC_PLAN}"
 assert_contains '## Done Criteria' "${EXEC_PLAN}"
 assert_contains $'strict-workflow\t18080' "${STRICT_PORT_REGISTRY}"
+if grep -Fq -- "${workdir}" "${EXEC_PLAN}"; then
+  fail "EXEC_PLAN should not expose local absolute sandbox paths"
+fi
 
 assert_command_fails "${TEST_ROOT}/scripts/task/new-exec-plan.sh" strict-workflow "Duplicate"
 assert_command_fails "${TEST_ROOT}/scripts/task/new-worktree.sh" strict-workflow

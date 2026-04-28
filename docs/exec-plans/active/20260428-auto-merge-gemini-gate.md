@@ -3,9 +3,9 @@
 - Task slug: `auto-merge-gemini-gate`
 - Base branch: `develop`
 - Feature branch: `codex/auto-merge-gemini-gate`
-- Worktree: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-worktrees/auto-merge-gemini-gate`
+- Worktree: `../wedit-backend-worktrees/auto-merge-gemini-gate`
 - Port: `18080`
-- Log dir: `/Users/hyunwoo/Desktop/Project/Wedit/wedit-backend-logs/auto-merge-gemini-gate`
+- Log dir: `../wedit-backend-logs/auto-merge-gemini-gate`
 - Status: `verified`
 
 ## Required Reads
@@ -56,3 +56,5 @@
 ## Result Notes
 - 첫 `./gradlew check build --no-daemon`은 새 worktree의 `config` submodule이 초기화되지 않아 `LocalConfigContractTest`에서 실패했다.
 - `git submodule update --init config` 후 동일 검증 명령이 통과했다.
+- Gemini review에서 EXEC_PLAN의 로컬 절대 경로 노출과 feature worktree 제거 전 cwd 이동 필요성을 지적했고, 각각 repo 기준 상대 경로 표시와 `cd "${develop_worktree}"` 후 `git worktree remove`로 반영했다.
+- 리뷰 반영 커밋 이후에도 이전 Gemini activity만으로 merge하지 않도록, `finish-pr.sh`는 최신 PR head commit 기준의 Gemini review/comment activity를 기다리게 보강했다.

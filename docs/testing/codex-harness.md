@@ -11,7 +11,7 @@
 - ArchUnit 구조 가드레일 테스트
 - Docker image packaging contract check. CI must build the image on PRs and pushes so deploy-only Dockerfile failures are caught before merge.
 - PR review gate. Automated review activity must exist, actionable review threads must be resolved, and checks must pass before merge.
-- Auto-finish PR gate. Gemini bot review activity must exist before `finish-pr.sh` can merge and clean up a feature branch.
+- Auto-finish PR gate. Gemini bot review activity for the latest PR head must exist before `finish-pr.sh` can merge and clean up a feature branch.
 
 ## 실패 시 확인 순서
 1. `test` profile이 활성화됐는지 확인합니다.
