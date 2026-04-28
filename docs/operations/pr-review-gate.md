@@ -24,7 +24,7 @@
 - merge는 `--match-head-commit`으로 검증 당시 PR head SHA에 고정합니다. gate 통과 뒤 새 commit이 push되면 merge가 실패하고 다시 review loop를 돌려야 합니다.
 - 자동 thread resolve는 하지 않습니다. 이미 코드/테스트/문서로 처리한 thread만 `scripts/task/finish-pr.sh --resolve-threads <PR_NUMBER>` 로 정리할 수 있습니다.
 - merge 이후 원격 feature branch 삭제는 local pre-push hook의 일반 push 제한을 우회해야 하므로 `finish-pr.sh`가 cleanup 삭제에만 `--no-verify`를 사용합니다.
-- feature worktree에 initialized submodule이 있으면 일반 `git worktree remove`가 거부될 수 있으므로 cleanup은 완료된 feature worktree를 force remove 합니다. 단, merge 전 feature worktree가 clean이고 locked 상태가 아닌 경우에만 cleanup을 진행합니다.
+- feature worktree에 initialized submodule이 있으면 일반 `git worktree remove`가 거부될 수 있으므로 cleanup은 완료된 feature worktree를 force remove 합니다. 단, merge 전 feature worktree가 clean이고 locked 상태가 아니며 local HEAD가 검증된 PR head SHA와 일치하는 경우에만 cleanup을 진행합니다.
 
 ## Codex Subagent Review Loop
 - 목적은 Gemini에만 의존하지 않고 PR 변경을 한 번 더 독립적으로 검토하는 것입니다.

@@ -114,6 +114,18 @@ assert_feature_worktree_clean_for_cleanup() {
     fail "feature worktree has uncommitted changes; clean it before finishing PR #${pr_number}: ${path}"
 }
 
+assert_feature_worktree_head_matches_pr() {
+  local path="$1"
+  local head_oid="$2"
+  local local_head_oid
+
+  [[ -d "${path}" ]] || return 0
+
+  local_head_oid="$(git -C "${path}" rev-parse HEAD)"
+  [[ "${local_head_oid}" == "${head_oid}" ]] ||
+    fail "feature worktree HEAD (${local_head_oid}) differs from verified PR head (${head_oid}); push or reset local commits before finishing PR #${pr_number}: ${path}"
+}
+
 review_bot_has_activity() {
   local pr="$1"
   local review_bot_regex="${STRICT_REVIEW_BOT_REGEX:-[Gg]emini|gemini-code-assist}"
@@ -261,6 +273,7 @@ require_subagent_review_marker "${pr_number}" "${head_oid}"
 feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
 if [[ -n "${feature_worktree}" && "${feature_worktree}" != "${develop_worktree}" ]]; then
   assert_feature_worktree_clean_for_cleanup "${feature_worktree}"
+  assert_feature_worktree_head_matches_pr "${feature_worktree}" "${head_oid}"
 fi
 
 gh pr merge "${pr_number}" --merge --match-head-commit "${head_oid}"

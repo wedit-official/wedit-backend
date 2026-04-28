@@ -35,6 +35,7 @@ printf 'finish pr\n' > "${feature_worktree}/finish.txt"
 git -C "${feature_worktree}" add finish.txt
 git -C "${feature_worktree}" commit -m "[feat] finish pr" >/dev/null 2>&1
 git -C "${feature_worktree}" push -u origin codex/finish-pr >/dev/null 2>&1
+remote_feature_head="$(git -C "${feature_worktree}" rev-parse HEAD)"
 
 hooks_dir="${workdir}/hooks"
 mkdir -p "${hooks_dir}"
@@ -66,7 +67,7 @@ if [[ "$1" == "pr" && "$2" == "view" ]]; then
     view_count=$((view_count + 1))
     printf '%s\n' "${view_count}" > "${GH_VIEW_COUNT_FILE}"
   fi
-  head_oid="HEAD_oid"
+  head_oid="${GH_HEAD_OID:-HEAD_oid}"
   if [[ "${GH_HEAD_CHANGES_DURING_VERIFY:-0}" == "1" && "${view_count}" -ge 5 ]]; then
     head_oid="NEW_HEAD_oid"
   fi
@@ -116,6 +117,7 @@ chmod +x "${stub_bin}/gh"
 export STRICT_REPO_ROOT="${sandbox}"
 export GH_CALLS_FILE="${gh_calls_file}"
 export GH_DEVELOP_WORKTREE="${sandbox}"
+export GH_HEAD_OID="${remote_feature_head}"
 export PATH="${stub_bin}:${PATH}"
 
 missing_gemini_output="${workdir}/missing-gemini.txt"
@@ -172,11 +174,25 @@ if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
 fi
 git -C "${sandbox}" worktree unlock "${feature_worktree}"
 
+local_head_mismatch_output="${workdir}/local-head-mismatch.txt"
+printf 'local only\n' > "${feature_worktree}/local-only.txt"
+git -C "${feature_worktree}" add local-only.txt
+git -C "${feature_worktree}" commit -m "[feat] local only" >/dev/null 2>&1
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${local_head_mismatch_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject clean local feature worktrees that differ from the PR head"
+fi
+assert_contains 'differs from verified PR head' "${local_head_mismatch_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "local feature worktree head mismatch should block before merge"
+fi
+git -C "${feature_worktree}" reset --hard "${remote_feature_head}" >/dev/null 2>&1
+
 : > "${gh_calls_file}"
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
 assert_output_contains 'Automated review bot activity detected' "${finish_output}"
 assert_output_contains 'PR #7 merged and cleaned up' "${finish_output}"
-assert_contains 'pr merge 7 --merge --match-head-commit HEAD_oid' "${gh_calls_file}"
+assert_contains "pr merge 7 --merge --match-head-commit ${remote_feature_head}" "${gh_calls_file}"
 [[ ! -d "${feature_worktree}" ]] || fail "expected feature worktree to be removed"
 assert_command_fails git -C "${sandbox}" show-ref --verify --quiet refs/heads/codex/finish-pr
 assert_command_fails git -C "${sandbox}" ls-remote --exit-code --heads origin codex/finish-pr

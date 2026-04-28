@@ -31,6 +31,8 @@
 - After submodule initialization, `./gradlew clean check build --no-daemon` passed.
 - Codex subagent review round 1 found that `--force --force` could delete dirty or locked feature worktrees. The script now blocks cleanup before merge when the feature worktree is dirty or locked, and tests cover both cases.
 - After the round 1 fix, `bash scripts/tests/run.sh` passed and `./gradlew --stop && ./gradlew clean check build --no-daemon --rerun-tasks` passed.
+- Codex subagent review round 2 found that a clean local feature worktree could contain unpushed commits. The script now requires local feature worktree HEAD to match the verified PR head SHA before merge, and the test covers this mismatch.
+- After the round 2 fix, `bash scripts/tests/run.sh` passed and `./gradlew clean check build --no-daemon` passed.
 
 ## Goal
 Harden the auto-finish PR cleanup path after PR #22 merged but failed during post-merge cleanup. The script must delete the merged remote feature branch despite local push hooks, remove feature worktrees that contain initialized submodules, and keep generated EXEC_PLAN files inside the feature worktree instead of dirtying the base `develop` checkout.
@@ -50,6 +52,7 @@ Update `finish-pr.sh` to bypass local hooks only for the post-merge remote branc
 - `finish-pr.sh` can complete cleanup when local pre-push hooks would otherwise reject deletion from `develop`.
 - `finish-pr.sh` can remove a completed feature worktree that has an initialized submodule.
 - `finish-pr.sh` refuses to merge/cleanup when the local feature worktree is dirty or locked.
+- `finish-pr.sh` refuses to merge/cleanup when the local feature worktree HEAD differs from the verified PR head.
 - `init-task.sh` leaves no generated EXEC_PLAN file in the base `develop` checkout.
 - Script tests cover the above regressions.
 - `bash scripts/tests/run.sh` and `./gradlew check build --no-daemon` pass.
