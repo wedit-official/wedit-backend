@@ -31,16 +31,21 @@ assert_dir_exists "${WORKTREE}"
 assert_dir_exists "${LOG_DIR}"
 assert_contains '## Required Reads' "${EXEC_PLAN}"
 assert_contains '## Related Docs' "${EXEC_PLAN}"
+assert_contains '## Related Feature IDs' "${EXEC_PLAN}"
 assert_contains '## Doc Notes' "${EXEC_PLAN}"
 assert_contains '- [ ] AGENTS.md' "${EXEC_PLAN}"
 assert_contains '- [ ] ARCHITECTURE.md' "${EXEC_PLAN}"
 assert_contains '- [ ] docs/index.md' "${EXEC_PLAN}"
 assert_contains '- [ ] docs/...' "${EXEC_PLAN}"
+assert_contains '- [ ] feature-id-or-n/a-harness' "${EXEC_PLAN}"
 assert_contains '## Goal' "${EXEC_PLAN}"
 assert_contains '## Approach' "${EXEC_PLAN}"
 assert_contains '## Step Plan' "${EXEC_PLAN}"
 assert_contains '## Done Criteria' "${EXEC_PLAN}"
 assert_contains $'strict-workflow\t18080' "${STRICT_PORT_REGISTRY}"
+if grep -Fq -- "${workdir}" "${EXEC_PLAN}"; then
+  fail "EXEC_PLAN should not expose local absolute sandbox paths"
+fi
 
 assert_command_fails "${TEST_ROOT}/scripts/task/new-exec-plan.sh" strict-workflow "Duplicate"
 assert_command_fails "${TEST_ROOT}/scripts/task/new-worktree.sh" strict-workflow

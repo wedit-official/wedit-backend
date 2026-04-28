@@ -23,6 +23,25 @@ filename="$(today_stamp)-${slug}.md"
 EXEC_PLAN="$(plan_dir)/${filename}"
 
 port_display="${PORT:-TBD}"
+display_path() {
+  local path="$1"
+  local home="${HOME%/}"
+  local repo repo_parent
+
+  repo="$(repo_root)"
+  repo_parent="$(dirname "${repo}")"
+
+  if [[ "${path}" == "${repo_parent}/"* ]]; then
+    printf '../%s\n' "${path#"${repo_parent}/"}"
+  elif [[ "${path}" == "${home}/"* ]]; then
+    printf '~/%s\n' "${path#"${home}/"}"
+  else
+    printf '<external:%s>\n' "$(basename "${path}")"
+  fi
+}
+
+worktree_display="$(display_path "${WORKTREE}")"
+log_dir_display="$(display_path "${LOG_DIR}")"
 
 cat > "${EXEC_PLAN}" <<EOF
 # EXEC_PLAN: ${TASK_TITLE}
@@ -30,9 +49,9 @@ cat > "${EXEC_PLAN}" <<EOF
 - Task slug: \`${TASK_SLUG}\`
 - Base branch: \`${BASE_BRANCH}\`
 - Feature branch: \`${FEATURE_BRANCH}\`
-- Worktree: \`${WORKTREE}\`
+- Worktree: \`${worktree_display}\`
 - Port: \`${port_display}\`
-- Log dir: \`${LOG_DIR}\`
+- Log dir: \`${log_dir_display}\`
 - Status: \`draft\`
 
 ## Required Reads
@@ -42,6 +61,9 @@ cat > "${EXEC_PLAN}" <<EOF
 
 ## Related Docs
 - [ ] docs/...
+
+## Related Feature IDs
+- [ ] feature-id-or-n/a-harness
 
 ## Doc Notes
 TBD

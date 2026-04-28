@@ -30,6 +30,9 @@ cat > "${sandbox}/docs/exec-plans/active/20260425-pr-check.md" <<EOF
 ## Related Docs
 - [x] docs/testing/codex-harness.md
 
+## Related Feature IDs
+- [x] n/a-harness
+
 ## Doc Notes
 - PR 본문에는 EXEC_PLAN 경로와 검증 결과를 포함해야 한다.
 
@@ -108,6 +111,7 @@ export STRICT_TASK_STATE_DIR="${sandbox}/.codex/task-state"
 export GH_ARGS_FILE="${gh_args_file}"
 export GH_CALLS_FILE="${gh_calls_file}"
 export GH_BODY_FILE="${gh_body_file}"
+export STRICT_AUTO_FINISH_PR=0
 export PATH="${stub_bin}:${PATH}"
 
 "${TEST_ROOT}/scripts/task/create-pr.sh"
@@ -124,5 +128,6 @@ assert_contains 'https://github.com/example/repo/issues/123' "${gh_body_file}"
 assert_contains 'docs/exec-plans/active/20260425-pr-check.md' "${gh_body_file}"
 assert_contains 'Status: `passed`' "${gh_body_file}"
 assert_contains '## Review Gate' "${gh_body_file}"
-assert_contains 'Automated PR review has completed.' "${gh_body_file}"
+assert_contains 'Gemini automated PR review has completed.' "${gh_body_file}"
 assert_contains 'scripts/task/verify-pr-ready.sh <PR_NUMBER>' "${gh_body_file}"
+assert_contains 'scripts/task/finish-pr.sh <PR_NUMBER>' "${gh_body_file}"
