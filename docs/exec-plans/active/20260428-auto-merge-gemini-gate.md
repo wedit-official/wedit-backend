@@ -60,3 +60,5 @@
 - Gemini가 추가 push를 재리뷰하지 않는 것으로 확인되어 외부 Gemini gate는 PR 단위 activity 확인으로 유지하고, 최신 변경 검토는 최대 3회의 Codex subagent review loop로 보완한다.
 - Subagent review round 1이 merge race를 지적해 `gh pr merge --match-head-commit`으로 검증한 head SHA에 merge를 고정했다.
 - Subagent review round 1 결과는 PR comment로 남겼고, 수정 후 다시 검증한다.
+- Subagent review round 2가 최신 head에 대한 subagent pass marker 강제와 verify 전후 head 변경 감지를 지적했다.
+- `finish-pr.sh`는 이제 `Codex Subagent Review Gate: PASS`와 `Head: <head_sha>` PR comment가 없으면 merge하지 않는다.

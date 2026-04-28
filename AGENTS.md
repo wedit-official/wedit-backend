@@ -76,6 +76,7 @@
 - 자동 review가 남긴 모든 actionable comment와 review thread를 코드/테스트/문서에 반영하고 GitHub thread를 resolve 한다.
 - Gemini가 추가 push를 다시 리뷰하지 않는 경우, Codex subagent review loop를 실행한다. 이 루프는 최대 3회까지만 수행한다.
 - subagent review에서 actionable finding이 나오면 PR comment로 남기고 코드/테스트/문서에 반영한 뒤 다시 검증한다.
+- 최신 PR head SHA에 대한 `Codex Subagent Review Gate: PASS` PR comment가 없으면 merge하지 않는다.
 - 머지 전에는 반드시 `scripts/task/verify-pr-ready.sh <PR_NUMBER>` 를 실행한다.
 - 이 게이트는 draft PR, requested changes, 미해결 review thread, pending/failing check, 충돌 상태를 차단한다.
 - 실패 원인과 해결 과정은 repo `EXEC_PLAN`과 Obsidian `04 Errors/Error Ledger.md` 또는 `05 Handoffs/Current State.md`에 남긴다.

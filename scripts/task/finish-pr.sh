@@ -23,6 +23,10 @@ Environment:
   STRICT_REVIEW_BOT_TIMEOUT_SECONDS    Default: 1800
   STRICT_REVIEW_BOT_INTERVAL_SECONDS   Default: 30
   STRICT_SKIP_REVIEW_BOT_WAIT          Set to 1 to skip the bot wait.
+  STRICT_REQUIRE_SUBAGENT_REVIEW_MARKER
+                                      Default: 1. Requires a PR comment with:
+                                      Codex Subagent Review Gate: PASS
+                                      Head: <current head SHA>
 EOF
   exit 1
 }
@@ -153,20 +157,53 @@ query($id: ID!) {
   done < <(jq -r '.data.node.reviewThreads.nodes[] | select(.isResolved == false) | .id' <<<"${threads}")
 }
 
-pr_json="$(gh pr view "${pr_ref}" --json number,url,state,id,headRefName,baseRefName,commits)"
+pr_head_oid() {
+  local pr="$1"
+  local head_json head_oid
+
+  head_json="$(gh pr view "${pr}" --json commits)"
+  head_oid="$(jq -r '(.commits // [])[-1].oid // ""' <<<"${head_json}")"
+  [[ -n "${head_oid}" ]] || fail "PR ${pr} head commit could not be determined"
+  printf '%s\n' "${head_oid}"
+}
+
+subagent_review_marker_exists() {
+  local pr="$1"
+  local head_oid="$2"
+
+  gh pr view "${pr}" --json comments |
+    jq -e --arg head "${head_oid}" '
+      any((.comments // [])[]?;
+        ((.body // "") | contains("Codex Subagent Review Gate: PASS"))
+        and ((.body // "") | contains("Head: " + $head))
+      )
+    ' >/dev/null
+}
+
+require_subagent_review_marker() {
+  local pr="$1"
+  local head_oid="$2"
+
+  if [[ "${STRICT_REQUIRE_SUBAGENT_REVIEW_MARKER:-1}" == "0" ]]; then
+    return 0
+  fi
+
+  subagent_review_marker_exists "${pr}" "${head_oid}" ||
+    fail "PR #${pr} is missing Codex subagent review pass marker for head ${head_oid}"
+}
+
+pr_json="$(gh pr view "${pr_ref}" --json number,url,state,id,headRefName,baseRefName)"
 pr_number="$(jq -r '.number' <<<"${pr_json}")"
 pr_url="$(jq -r '.url' <<<"${pr_json}")"
 pr_node_id="$(jq -r '.id' <<<"${pr_json}")"
 head_branch="$(jq -r '.headRefName' <<<"${pr_json}")"
 base_branch="$(jq -r '.baseRefName' <<<"${pr_json}")"
-head_oid="$(jq -r '(.commits // [])[-1].oid // ""' <<<"${pr_json}")"
 state="$(jq -r '.state' <<<"${pr_json}")"
 remote_name="${STRICT_REMOTE_NAME:-origin}"
 
 [[ "${state}" == "OPEN" ]] || fail "PR #${pr_number} is not open: ${state}"
 [[ "${base_branch}" == "develop" ]] || fail "PR #${pr_number} must target develop, found: ${base_branch}"
 [[ "${head_branch}" =~ ^codex/[a-z0-9][a-z0-9-]*$ ]] || fail "PR #${pr_number} head branch must match codex/<slug>: ${head_branch}"
-[[ -n "${head_oid}" ]] || fail "PR #${pr_number} head commit could not be determined"
 
 develop_worktree="$(find_worktree_for_branch "develop")"
 [[ -n "${develop_worktree}" ]] || fail "local develop worktree was not found"
@@ -181,7 +218,12 @@ if [[ "${resolve_threads}" == "true" ]]; then
   resolve_review_threads "${pr_node_id}" "${pr_number}"
 fi
 
+head_before_verify="$(pr_head_oid "${pr_number}")"
 "${SCRIPT_DIR}/verify-pr-ready.sh" "${pr_number}"
+head_oid="$(pr_head_oid "${pr_number}")"
+[[ "${head_before_verify}" == "${head_oid}" ]] ||
+  fail "PR #${pr_number} head changed during verification (${head_before_verify} -> ${head_oid}); rerun the review gate"
+require_subagent_review_marker "${pr_number}" "${head_oid}"
 
 feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
 

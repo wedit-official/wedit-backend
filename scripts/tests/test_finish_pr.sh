@@ -37,8 +37,25 @@ printf '%s\n' "$*" >> "${GH_CALLS_FILE}"
 
 if [[ "$1" == "pr" && "$2" == "view" ]]; then
   reviewer_login="${GH_REVIEWER_LOGIN:-gemini-code-assist[bot]}"
+  view_count=0
+  if [[ -n "${GH_VIEW_COUNT_FILE:-}" ]]; then
+    if [[ -f "${GH_VIEW_COUNT_FILE}" ]]; then
+      view_count="$(cat "${GH_VIEW_COUNT_FILE}")"
+    fi
+    view_count=$((view_count + 1))
+    printf '%s\n' "${view_count}" > "${GH_VIEW_COUNT_FILE}"
+  fi
+  head_oid="HEAD_oid"
+  if [[ "${GH_HEAD_CHANGES_DURING_VERIFY:-0}" == "1" && "${view_count}" -ge 5 ]]; then
+    head_oid="NEW_HEAD_oid"
+  fi
+  if [[ "${GH_SUBAGENT_MARKER:-1}" == "1" ]]; then
+    comments_json="[{\"author\":{\"login\":\"codex\"},\"body\":\"Codex Subagent Review Gate: PASS\nHead: ${head_oid}\nRound: 2/3\"}]"
+  else
+    comments_json='[]'
+  fi
   cat <<JSON
-{"number":7,"url":"https://github.com/example/repo/pull/7","state":"OPEN","id":"PR_node_7","headRefName":"codex/finish-pr","baseRefName":"develop","commits":[{"oid":"HEAD_oid"}],"isDraft":false,"reviewDecision":"${GH_REVIEW_DECISION:-}","reviews":[{"author":{"login":"${reviewer_login}"},"state":"COMMENTED"}],"comments":[],"mergeStateStatus":"${GH_MERGE_STATE:-CLEAN}"}
+{"number":7,"url":"https://github.com/example/repo/pull/7","state":"OPEN","id":"PR_node_7","headRefName":"codex/finish-pr","baseRefName":"develop","commits":[{"oid":"${head_oid}"}],"isDraft":false,"reviewDecision":"${GH_REVIEW_DECISION:-}","reviews":[{"author":{"login":"${reviewer_login}"},"state":"COMMENTED"}],"comments":${comments_json},"mergeStateStatus":"${GH_MERGE_STATE:-CLEAN}"}
 JSON
   exit 0
 fi
@@ -87,6 +104,18 @@ if GH_UNRESOLVED_THREADS=1 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${unreso
   fail "expected finish-pr.sh to fail on unresolved review threads"
 fi
 assert_contains 'unresolved PR review threads' "${unresolved_output}"
+
+head_changed_output="${workdir}/head-changed.txt"
+if GH_HEAD_CHANGES_DURING_VERIFY=1 GH_VIEW_COUNT_FILE="${workdir}/head-view-count.txt" "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${head_changed_output}" 2>&1; then
+  fail "expected finish-pr.sh to fail when PR head changes during verification"
+fi
+assert_contains 'head changed during verification' "${head_changed_output}"
+
+missing_subagent_output="${workdir}/missing-subagent.txt"
+if GH_SUBAGENT_MARKER=0 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${missing_subagent_output}" 2>&1; then
+  fail "expected finish-pr.sh to require a Codex subagent review marker"
+fi
+assert_contains 'missing Codex subagent review pass marker' "${missing_subagent_output}"
 
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
 assert_output_contains 'Automated review bot activity detected' "${finish_output}"
