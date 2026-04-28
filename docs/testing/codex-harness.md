@@ -12,6 +12,7 @@
 - Docker image packaging contract check. CI must build the image on PRs and pushes so deploy-only Dockerfile failures are caught before merge.
 - PR review gate. Automated review activity must exist, actionable review threads must be resolved, and checks must pass before merge.
 - Auto-finish PR gate. Gemini bot review activity must exist, Codex subagent review pass marker must match the latest PR head, and `finish-pr.sh` must pin merge to the verified PR head.
+- Auto-finish cleanup. Remote feature branch deletion must bypass local push hooks only for cleanup, and feature worktree removal must handle initialized submodules without deleting dirty, locked, or locally ahead/diverged worktrees.
 
 ## 실패 시 확인 순서
 1. `test` profile이 활성화됐는지 확인합니다.

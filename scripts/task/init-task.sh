@@ -11,7 +11,8 @@ title="${2:-}"
   exit 1
 }
 
-"${SCRIPT_DIR}/new-worktree.sh" "${slug}"
+worktree="$("${SCRIPT_DIR}/new-worktree.sh" "${slug}")"
+printf '%s\n' "${worktree}"
 "${SCRIPT_DIR}/allocate-port.sh" "${slug}"
 "${SCRIPT_DIR}/create-log-dir.sh" "${slug}"
-"${SCRIPT_DIR}/new-exec-plan.sh" "${slug}" "${title}"
+STRICT_REPO_ROOT="${worktree}" "${SCRIPT_DIR}/new-exec-plan.sh" "${slug}" "${title}"

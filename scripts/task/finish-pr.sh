@@ -81,6 +81,51 @@ find_worktree_for_branch() {
   '
 }
 
+worktree_is_locked() {
+  local path="$1"
+
+  git -C "${repo}" worktree list --porcelain | awk -v target="${path}" '
+    /^worktree / {
+      in_target = (substr($0, 10) == target)
+      next
+    }
+    in_target && /^locked/ {
+      found = 1
+      exit
+    }
+    END {
+      exit found ? 0 : 1
+    }
+  '
+}
+
+assert_feature_worktree_clean_for_cleanup() {
+  local path="$1"
+  local status_output
+
+  [[ -d "${path}" ]] || return 0
+
+  if worktree_is_locked "${path}"; then
+    fail "feature worktree is locked; unlock or clean it before finishing PR #${pr_number}: ${path}"
+  fi
+
+  status_output="$(git -C "${path}" status --short --ignore-submodules=none)"
+  [[ -z "${status_output}" ]] ||
+    fail "feature worktree has uncommitted changes; clean it before finishing PR #${pr_number}: ${path}"
+}
+
+assert_feature_worktree_head_matches_pr() {
+  local path="$1"
+  local head_oid="$2"
+  local local_head_oid
+
+  [[ -d "${path}" ]] || return 0
+
+  local_head_oid="$(git -C "${path}" rev-parse HEAD)"
+  [[ "${local_head_oid}" == "${head_oid}" ]] ||
+    fail "feature worktree HEAD (${local_head_oid}) differs from verified PR head (${head_oid}); push or reset local commits before finishing PR #${pr_number}: ${path}"
+}
+
 review_bot_has_activity() {
   local pr="$1"
   local review_bot_regex="${STRICT_REVIEW_BOT_REGEX:-[Gg]emini|gemini-code-assist}"
@@ -226,11 +271,15 @@ head_oid="$(pr_head_oid "${pr_number}")"
 require_subagent_review_marker "${pr_number}" "${head_oid}"
 
 feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
+if [[ -n "${feature_worktree}" && "${feature_worktree}" != "${develop_worktree}" ]]; then
+  assert_feature_worktree_clean_for_cleanup "${feature_worktree}"
+  assert_feature_worktree_head_matches_pr "${feature_worktree}" "${head_oid}"
+fi
 
 gh pr merge "${pr_number}" --merge --match-head-commit "${head_oid}"
 
 if git -C "${develop_worktree}" ls-remote --exit-code --heads "${remote_name}" "${head_branch}" >/dev/null 2>&1; then
-  git -C "${develop_worktree}" push "${remote_name}" --delete "${head_branch}" >/dev/null
+  git -C "${develop_worktree}" push --no-verify "${remote_name}" --delete "${head_branch}" >/dev/null
 fi
 
 git -C "${develop_worktree}" fetch "${remote_name}" develop --prune
@@ -239,7 +288,7 @@ git -C "${develop_worktree}" pull --ff-only "${remote_name}" develop
 
 if [[ -n "${feature_worktree}" && "${feature_worktree}" != "${develop_worktree}" ]]; then
   cd "${develop_worktree}"
-  git worktree remove "${feature_worktree}"
+  git worktree remove --force --force "${feature_worktree}"
 fi
 
 if git -C "${develop_worktree}" show-ref --verify --quiet "refs/heads/${head_branch}"; then

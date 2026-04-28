@@ -12,18 +12,40 @@ trap 'rm -rf "${workdir}"' EXIT
 sandbox="${workdir}/repo"
 remote_repo="${workdir}/remote.git"
 feature_worktree="${workdir}/feature-worktree"
+submodule_repo="${workdir}/config-module"
 
 setup_sandbox_repo "${sandbox}"
+git init "${submodule_repo}" >/dev/null 2>&1
+git -C "${submodule_repo}" config user.email "test@example.com"
+git -C "${submodule_repo}" config user.name "Test User"
+printf 'config\n' > "${submodule_repo}/config.txt"
+git -C "${submodule_repo}" add config.txt
+git -C "${submodule_repo}" commit -m "init config" >/dev/null 2>&1
+git -C "${sandbox}" checkout develop >/dev/null 2>&1
+git -C "${sandbox}" -c protocol.file.allow=always submodule add "${submodule_repo}" config >/dev/null 2>&1
+git -C "${sandbox}" commit -m "add config submodule" >/dev/null 2>&1
 git init --bare "${remote_repo}" >/dev/null 2>&1
 git -C "${sandbox}" remote add origin "${remote_repo}"
 git -C "${sandbox}" checkout develop >/dev/null 2>&1
 git -C "${sandbox}" push -u origin develop >/dev/null 2>&1
 
 git -C "${sandbox}" worktree add "${feature_worktree}" -b codex/finish-pr develop >/dev/null 2>&1
+git -C "${feature_worktree}" -c protocol.file.allow=always submodule update --init config >/dev/null 2>&1
 printf 'finish pr\n' > "${feature_worktree}/finish.txt"
 git -C "${feature_worktree}" add finish.txt
 git -C "${feature_worktree}" commit -m "[feat] finish pr" >/dev/null 2>&1
 git -C "${feature_worktree}" push -u origin codex/finish-pr >/dev/null 2>&1
+remote_feature_head="$(git -C "${feature_worktree}" rev-parse HEAD)"
+
+hooks_dir="${workdir}/hooks"
+mkdir -p "${hooks_dir}"
+cat > "${hooks_dir}/pre-push" <<'EOF'
+#!/usr/bin/env bash
+echo "pre-push hook should be bypassed for finish-pr cleanup branch deletion" >&2
+exit 1
+EOF
+chmod +x "${hooks_dir}/pre-push"
+git -C "${sandbox}" config core.hooksPath "${hooks_dir}"
 
 stub_bin="${workdir}/bin"
 mkdir -p "${stub_bin}"
@@ -45,7 +67,7 @@ if [[ "$1" == "pr" && "$2" == "view" ]]; then
     view_count=$((view_count + 1))
     printf '%s\n' "${view_count}" > "${GH_VIEW_COUNT_FILE}"
   fi
-  head_oid="HEAD_oid"
+  head_oid="${GH_HEAD_OID:-HEAD_oid}"
   if [[ "${GH_HEAD_CHANGES_DURING_VERIFY:-0}" == "1" && "${view_count}" -ge 5 ]]; then
     head_oid="NEW_HEAD_oid"
   fi
@@ -95,6 +117,7 @@ chmod +x "${stub_bin}/gh"
 export STRICT_REPO_ROOT="${sandbox}"
 export GH_CALLS_FILE="${gh_calls_file}"
 export GH_DEVELOP_WORKTREE="${sandbox}"
+export GH_HEAD_OID="${remote_feature_head}"
 export PATH="${stub_bin}:${PATH}"
 
 missing_gemini_output="${workdir}/missing-gemini.txt"
@@ -127,9 +150,49 @@ if GH_STALE_SUBAGENT_MARKER=1 "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${sta
 fi
 assert_contains 'missing Codex subagent review pass marker' "${stale_subagent_output}"
 
+dirty_worktree_output="${workdir}/dirty-worktree.txt"
+printf 'local scratch\n' > "${feature_worktree}/scratch.txt"
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${dirty_worktree_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject dirty feature worktrees before merge"
+fi
+assert_contains 'feature worktree has uncommitted changes' "${dirty_worktree_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "dirty feature worktree should block before merge"
+fi
+rm -f "${feature_worktree}/scratch.txt"
+
+locked_worktree_output="${workdir}/locked-worktree.txt"
+git -C "${sandbox}" worktree lock --reason "test lock" "${feature_worktree}"
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${locked_worktree_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject locked feature worktrees before merge"
+fi
+assert_contains 'feature worktree is locked' "${locked_worktree_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "locked feature worktree should block before merge"
+fi
+git -C "${sandbox}" worktree unlock "${feature_worktree}"
+
+local_head_mismatch_output="${workdir}/local-head-mismatch.txt"
+printf 'local only\n' > "${feature_worktree}/local-only.txt"
+git -C "${feature_worktree}" add local-only.txt
+git -C "${feature_worktree}" commit -m "[feat] local only" >/dev/null 2>&1
+: > "${gh_calls_file}"
+if "${TEST_ROOT}/scripts/task/finish-pr.sh" 7 >"${local_head_mismatch_output}" 2>&1; then
+  fail "expected finish-pr.sh to reject clean local feature worktrees that differ from the PR head"
+fi
+assert_contains 'differs from verified PR head' "${local_head_mismatch_output}"
+if grep -Fq -- 'pr merge' "${gh_calls_file}"; then
+  fail "local feature worktree head mismatch should block before merge"
+fi
+git -C "${feature_worktree}" reset --hard "${remote_feature_head}" >/dev/null 2>&1
+
+: > "${gh_calls_file}"
 finish_output="$("${TEST_ROOT}/scripts/task/finish-pr.sh" 7)"
 assert_output_contains 'Automated review bot activity detected' "${finish_output}"
 assert_output_contains 'PR #7 merged and cleaned up' "${finish_output}"
-assert_contains 'pr merge 7 --merge --match-head-commit HEAD_oid' "${gh_calls_file}"
+assert_contains "pr merge 7 --merge --match-head-commit ${remote_feature_head}" "${gh_calls_file}"
 [[ ! -d "${feature_worktree}" ]] || fail "expected feature worktree to be removed"
 assert_command_fails git -C "${sandbox}" show-ref --verify --quiet refs/heads/codex/finish-pr
+assert_command_fails git -C "${sandbox}" ls-remote --exit-code --heads origin codex/finish-pr

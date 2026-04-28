@@ -15,6 +15,22 @@ repo_root() {
   fi
 }
 
+repo_state_root() {
+  local repo git_common_dir
+
+  repo="$(repo_root)"
+  git_common_dir="$(git -C "${repo}" rev-parse --git-common-dir)"
+  if [[ "${git_common_dir}" != /* ]]; then
+    git_common_dir="${repo}/${git_common_dir}"
+  fi
+
+  if [[ "$(basename "${git_common_dir}")" == ".git" ]]; then
+    (cd "$(dirname "${git_common_dir}")" && pwd)
+  else
+    printf '%s\n' "${repo}"
+  fi
+}
+
 validate_slug() {
   local slug="$1"
   [[ "${slug}" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "slug must match ^[a-z0-9][a-z0-9-]*$: ${slug}"
@@ -37,10 +53,10 @@ task_state_dir() {
     mkdir -p "${STRICT_TASK_STATE_DIR}"
     (cd "${STRICT_TASK_STATE_DIR}" && pwd)
   else
-    local repo
-    repo="$(repo_root)"
-    mkdir -p "${repo}/.codex/task-state"
-    (cd "${repo}/.codex/task-state" && pwd)
+    local state_root
+    state_root="$(repo_state_root)"
+    mkdir -p "${state_root}/.codex/task-state"
+    (cd "${state_root}/.codex/task-state" && pwd)
   fi
 }
 

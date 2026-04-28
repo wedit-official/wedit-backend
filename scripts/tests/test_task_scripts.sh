@@ -13,7 +13,6 @@ sandbox="${workdir}/repo"
 setup_sandbox_repo "${sandbox}"
 
 export STRICT_REPO_ROOT="${sandbox}"
-export STRICT_PLAN_DIR="${sandbox}/docs/exec-plans/active"
 export STRICT_TASK_STATE_DIR="${sandbox}/.codex/task-state"
 export STRICT_WORKTREE_BASE_DIR="${workdir}/worktrees"
 export STRICT_LOG_BASE_DIR="${workdir}/logs"
@@ -28,6 +27,19 @@ source "${env_file}"
 
 assert_file_exists "${EXEC_PLAN}"
 assert_dir_exists "${WORKTREE}"
+shared_state_dir="$(
+  cd "${WORKTREE}"
+  env -u STRICT_REPO_ROOT -u STRICT_TASK_STATE_DIR bash -c 'source "$1"; task_state_dir' _ "${TEST_ROOT}/scripts/task/common.sh"
+)"
+expected_state_dir="$(cd "${sandbox}/.codex/task-state" && pwd -P)"
+[[ "${shared_state_dir}" == "${expected_state_dir}" ]] ||
+  fail "expected linked worktrees to share base task state: ${shared_state_dir}"
+case "${EXEC_PLAN}" in
+  "${WORKTREE}/docs/exec-plans/active/"*) ;;
+  *) fail "expected EXEC_PLAN to be created inside the feature worktree: ${EXEC_PLAN}" ;;
+esac
+[[ ! -f "${sandbox}/docs/exec-plans/active/$(basename "${EXEC_PLAN}")" ]] ||
+  fail "EXEC_PLAN should not be left in the base develop worktree"
 assert_dir_exists "${LOG_DIR}"
 assert_contains '## Required Reads' "${EXEC_PLAN}"
 assert_contains '## Related Docs' "${EXEC_PLAN}"
@@ -47,6 +59,6 @@ if grep -Fq -- "${workdir}" "${EXEC_PLAN}"; then
   fail "EXEC_PLAN should not expose local absolute sandbox paths"
 fi
 
-assert_command_fails "${TEST_ROOT}/scripts/task/new-exec-plan.sh" strict-workflow "Duplicate"
+assert_command_fails env STRICT_REPO_ROOT="${WORKTREE}" "${TEST_ROOT}/scripts/task/new-exec-plan.sh" strict-workflow "Duplicate"
 assert_command_fails "${TEST_ROOT}/scripts/task/new-worktree.sh" strict-workflow
 assert_command_fails "${TEST_ROOT}/scripts/task/new-exec-plan.sh" bad_slug "Bad Slug"
