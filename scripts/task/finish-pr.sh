@@ -81,25 +81,14 @@ review_bot_has_activity() {
   local pr="$1"
   local review_bot_regex="${STRICT_REVIEW_BOT_REGEX:-[Gg]emini|gemini-code-assist}"
 
-  gh pr view "${pr}" --json reviews,comments,commits |
+  gh pr view "${pr}" --json reviews,comments |
     jq -e --arg regex "${review_bot_regex}" '
-      (.commits // [])[-1] as $head
-      | ($head.oid // "") as $head_oid
-      | ($head.committedDate // "") as $head_time
-      | ($head_oid != "")
-        and (
-          any((.reviews // [])[]?;
-            ((.author.login // "") | test($regex))
-            and (
-              ((.commit.oid // "") == $head_oid)
-              or ((.submittedAt // "") >= $head_time)
-            )
-          )
-          or any((.comments // [])[]?;
-            ((.author.login // "") | test($regex))
-            and ((.createdAt // "") >= $head_time)
-          )
-        )
+      [
+        (.reviews // [])[]?.author.login,
+        (.comments // [])[]?.author.login
+      ]
+      | map(select(. != null))
+      | any(test($regex))
     ' >/dev/null
 }
 
@@ -113,7 +102,7 @@ wait_for_review_bot_activity() {
   start="$(date '+%s')"
   while true; do
     if review_bot_has_activity "${pr}"; then
-      printf 'Automated review bot activity detected for latest PR head %s (regex: %s)\n' "${pr}" "${review_bot_regex}"
+      printf 'Automated review bot activity detected for PR %s (regex: %s)\n' "${pr}" "${review_bot_regex}"
       return 0
     fi
 
@@ -164,18 +153,20 @@ query($id: ID!) {
   done < <(jq -r '.data.node.reviewThreads.nodes[] | select(.isResolved == false) | .id' <<<"${threads}")
 }
 
-pr_json="$(gh pr view "${pr_ref}" --json number,url,state,id,headRefName,baseRefName)"
+pr_json="$(gh pr view "${pr_ref}" --json number,url,state,id,headRefName,baseRefName,commits)"
 pr_number="$(jq -r '.number' <<<"${pr_json}")"
 pr_url="$(jq -r '.url' <<<"${pr_json}")"
 pr_node_id="$(jq -r '.id' <<<"${pr_json}")"
 head_branch="$(jq -r '.headRefName' <<<"${pr_json}")"
 base_branch="$(jq -r '.baseRefName' <<<"${pr_json}")"
+head_oid="$(jq -r '(.commits // [])[-1].oid // ""' <<<"${pr_json}")"
 state="$(jq -r '.state' <<<"${pr_json}")"
 remote_name="${STRICT_REMOTE_NAME:-origin}"
 
 [[ "${state}" == "OPEN" ]] || fail "PR #${pr_number} is not open: ${state}"
 [[ "${base_branch}" == "develop" ]] || fail "PR #${pr_number} must target develop, found: ${base_branch}"
 [[ "${head_branch}" =~ ^codex/[a-z0-9][a-z0-9-]*$ ]] || fail "PR #${pr_number} head branch must match codex/<slug>: ${head_branch}"
+[[ -n "${head_oid}" ]] || fail "PR #${pr_number} head commit could not be determined"
 
 develop_worktree="$(find_worktree_for_branch "develop")"
 [[ -n "${develop_worktree}" ]] || fail "local develop worktree was not found"
@@ -194,7 +185,7 @@ fi
 
 feature_worktree="$(find_worktree_for_branch "${head_branch}" || true)"
 
-gh pr merge "${pr_number}" --merge
+gh pr merge "${pr_number}" --merge --match-head-commit "${head_oid}"
 
 if git -C "${develop_worktree}" ls-remote --exit-code --heads "${remote_name}" "${head_branch}" >/dev/null 2>&1; then
   git -C "${develop_worktree}" push "${remote_name}" --delete "${head_branch}" >/dev/null
