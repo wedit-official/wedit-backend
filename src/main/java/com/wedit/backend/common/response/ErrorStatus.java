@@ -23,9 +23,11 @@ public enum ErrorStatus {
     NOT_FOUND_VENDOR(HttpStatus.NOT_FOUND, "해당 업체를 찾을 수 없습니다."),
     NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "해당 상품을 찾을 수 없습니다."),
     NOT_FOUND_MEDIA(HttpStatus.NOT_FOUND, "해당 미디어를 찾을 수 없습니다."),
+    NOT_FOUND_SCRAP(HttpStatus.NOT_FOUND, "해당 스크랩을 찾을 수 없습니다."),
 
     /// 409 CONFLICT
     CONFLICT_DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "중복된 리소스가 존재합니다."),
+    CONFLICT_ALREADY_SCRAPPED(HttpStatus.CONFLICT, "이미 스크랩한 업체입니다."),
 
     /// 415 UNSUPPORTED MEDIA TYPE
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 Content-Type 입니다."),

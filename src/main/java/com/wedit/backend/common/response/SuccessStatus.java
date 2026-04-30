@@ -19,11 +19,14 @@ public enum SuccessStatus {
     MEDIA_UPDATE_SUCCESS(HttpStatus.OK, "미디어 수정 성공"),
     AWS_S3_PRESIGNED_URL_SUCCESS(HttpStatus.OK, "S3 Presigned URL 발급 성공"),
     MEMBER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "회원 추가정보 저장 성공"),
+    SCRAP_STATUS_SUCCESS(HttpStatus.OK, "스크랩 상태 조회 성공"),
+    SCRAP_TOGGLE_SUCCESS(HttpStatus.OK, "스크랩 토글 성공"),
 
     /// 201 CREATED
     VENDOR_CREATE_SUCCESS(HttpStatus.CREATED, "업체 생성 성공"),
     MEMBER_SIGNUP_SUCCESS(HttpStatus.CREATED, "회원가입 성공"),
     MEDIA_ADD_SUCCESS(HttpStatus.CREATED, "미디어 추가 성공"),
+    SCRAP_SUCCESS(HttpStatus.CREATED, "스크랩 등록 성공"),
 
     /// 204 NO CONTENT
     MEDIA_DELETE_SUCCESS(HttpStatus.NO_CONTENT, "미디어 삭제 성공"),
