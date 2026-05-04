@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +52,15 @@ public abstract class Vendor extends BaseTimeEntity {
     @Column(nullable = false)
     private boolean isActive = true;
 
+    @Column(nullable = false)
+    private Long cachedMinPrice = 0L;
+
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemGroup> itemGroups = new ArrayList<>();
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("ordering ASC")
+    @BatchSize(size = 20)
     private List<VendorMedia> mediaList = new ArrayList<>();
 
     protected Vendor(String name, String region, String fullAddress, String addressDetail,
@@ -73,6 +78,7 @@ public abstract class Vendor extends BaseTimeEntity {
         this.instagramUrl = instagramUrl;
         this.description = description;
         this.isActive = true;
+        this.cachedMinPrice = 0L;
         this.itemGroups = new ArrayList<>();
         this.mediaList = new ArrayList<>();
     }
@@ -93,6 +99,10 @@ public abstract class Vendor extends BaseTimeEntity {
     public void replaceMediaList(List<VendorMedia> mediaList) {
         this.mediaList.clear();
         mediaList.forEach(this::addMedia);
+    }
+
+    public void updateMinPrice(Long newMinPrice) {
+        this.cachedMinPrice = newMinPrice != null ? newMinPrice : 0L;
     }
 
     public void updateCommonInfo(String name, String region, String fullAddress, String addressDetail,

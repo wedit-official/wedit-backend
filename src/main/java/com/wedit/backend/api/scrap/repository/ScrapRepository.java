@@ -22,7 +22,6 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
     @Query("""
         SELECT s FROM Scrap s
         JOIN FETCH s.vendor v
-        LEFT JOIN FETCH v.mediaList
         WHERE s.member.id = :memberId
         AND v.isActive = true
         ORDER BY s.createdAt DESC
@@ -35,7 +34,6 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
     @Query("""
         SELECT s FROM Scrap s
         JOIN FETCH s.vendor v
-        LEFT JOIN FETCH v.mediaList
         WHERE s.member.id = :memberId
         AND v.isActive = true
         AND (

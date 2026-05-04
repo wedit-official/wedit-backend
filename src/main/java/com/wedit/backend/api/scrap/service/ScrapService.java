@@ -58,25 +58,20 @@ public class ScrapService {
     @Transactional(readOnly = true)
     public Page<ScrapListResponseDTO> getScrapList(Long memberId, VendorCategory category, Pageable pageable) {
 
-        Page<Scrap> scraps = (category == null)
+        // 쿼리 단 1번 — cachedMinPrice는 vendor 컬럼에서 바로 읽음
+        Page<Scrap> scrapPage = (category == null)
                 ? scrapRepository.findScrapsByMemberId(memberId, pageable)
                 : scrapRepository.findScrapsByMemberIdAndCategory(memberId, category.name(), pageable);
 
-        return scraps.map(scrap -> {
+        return scrapPage.map(scrap -> {
             Vendor vendor = scrap.getVendor();
 
             String thumbnailUrl = vendor.getMediaList().stream()
                     .filter(VendorMedia::isThumbnail)
                     .findFirst()
                     .or(() -> vendor.getMediaList().stream().findFirst())
-                    .map(media -> media.getUrl())
+                    .map(VendorMedia::getUrl)
                     .orElse(null);
-
-            long basePrice = vendor.getItemGroups().stream()
-                    .filter(ig -> !ig.isDeleted())
-                    .mapToLong(ig -> ig.getCachedMinPrice() != null ? ig.getCachedMinPrice() : 0L)
-                    .min()
-                    .orElse(0L);
 
             return ScrapListResponseDTO.of(
                     vendor.getId(),
@@ -84,7 +79,7 @@ public class ScrapService {
                     vendor.getVendorCategory(),
                     vendor.getRegion(),
                     thumbnailUrl,
-                    basePrice
+                    vendor.getCachedMinPrice()
             );
         });
     }

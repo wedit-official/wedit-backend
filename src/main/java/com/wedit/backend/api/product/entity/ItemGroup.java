@@ -57,7 +57,19 @@ public class ItemGroup extends BaseTimeEntity {
         this.cachedMinPrice = newMinPrice;
     }
 
+    public void updateVendorMinPrice() {
+        Long vendorMin = vendor.getItemGroups().stream()
+                .filter(ig -> !ig.isDeleted())
+                .map(ItemGroup::getCachedMinPrice)
+                .filter(p -> p != null)
+                .min(Long::compareTo)
+                .orElse(0L);
+
+        vendor.updateMinPrice(vendorMin);
+    }
+
     public void delete() {
         this.isDeleted = true;
+        updateVendorMinPrice();
     }
 }
