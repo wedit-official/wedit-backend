@@ -21,56 +21,41 @@ public class ScrapController {
     private final ScrapService scrapService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ScrapToggleResponseDTO>> toggle(
+    public ResponseEntity<?> toggle(
             @PathVariable Long vendorId
     ) {
-        SecurityMember securityMember = resolveSecurityMember();
-        if (securityMember == null) {
-            return unauthorized();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof SecurityMember securityMember)) {
+            return ResponseEntity.status(ErrorStatus.UNAUTHORIZED_USER.getStatusCode())
+                    .body(ApiResponse.fail(ErrorStatus.UNAUTHORIZED_USER.getStatusCode(), "인증이 필요합니다."));
         }
 
-        ScrapToggleResponseDTO resp = scrapService.toggle(
-                securityMember.getMember().getId(), vendorId
-        );
+        ScrapToggleResponseDTO resp = scrapService.toggle(securityMember.getMember().getId(), vendorId);
 
         return ApiResponse.success(SuccessStatus.SCRAP_TOGGLE_SUCCESS, resp);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<ScrapToggleResponseDTO>> getStatus(
+    public ResponseEntity<?> getStatus(
             @PathVariable Long vendorId
     ) {
-        SecurityMember securityMember = resolveSecurityMember();
-        if (securityMember == null) {
-            return unauthorized();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof SecurityMember securityMember)) {
+            return ResponseEntity.status(ErrorStatus.UNAUTHORIZED_USER.getStatusCode())
+                    .body(ApiResponse.fail(ErrorStatus.UNAUTHORIZED_USER.getStatusCode(), "인증이 필요합니다."));
         }
 
-        ScrapToggleResponseDTO resp = scrapService.getStatus(
-                securityMember.getMember().getId(), vendorId
-        );
+        ScrapToggleResponseDTO resp = scrapService.getStatus(securityMember.getMember().getId(), vendorId);
 
         return ApiResponse.success(SuccessStatus.SCRAP_STATUS_SUCCESS, resp);
     }
 
-    private SecurityMember resolveSecurityMember() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof SecurityMember sm)) {
-            return null;
-        }
-        return sm;
-    }
-
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(NotFoundException exception) {
-        return ResponseEntity.status(exception.getStatusCode())
-                .body(ApiResponse.fail(exception.getStatusCode(), exception.getResponseMessage()));
-    }
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            NotFoundException exception
+    ) {
+        ApiResponse<Void> body = ApiResponse.fail(exception.getStatusCode(), exception.getResponseMessage());
 
-    private ResponseEntity<ApiResponse<?>> unauthorized() {
-        return ResponseEntity.status(ErrorStatus.UNAUTHORIZED_USER.getStatusCode())
-                .body(ApiResponse.fail(
-                        ErrorStatus.UNAUTHORIZED_USER.getStatusCode(),
-                        ErrorStatus.UNAUTHORIZED_USER.getMessage()
-                ));
+        return ResponseEntity.status(exception.getStatusCode()).body(body);
     }
 }
