@@ -21,6 +21,8 @@ public enum SuccessStatus {
     MEMBER_PROFILE_UPDATE_SUCCESS(HttpStatus.OK, "회원 추가정보 저장 성공"),
     SCRAP_STATUS_SUCCESS(HttpStatus.OK, "스크랩 상태 조회 성공"),
     SCRAP_TOGGLE_SUCCESS(HttpStatus.OK, "스크랩 토글 성공"),
+    MEMBER_MYPAGE_GET_SUCCESS(HttpStatus.OK, "마이페이지 조회 성공"),
+    SCRAP_LIST_SUCCESS(HttpStatus.OK, "스크랩 목록 조회 성공"),
 
     /// 201 CREATED
     VENDOR_CREATE_SUCCESS(HttpStatus.CREATED, "업체 생성 성공"),

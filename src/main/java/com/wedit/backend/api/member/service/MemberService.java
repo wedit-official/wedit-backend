@@ -1,16 +1,16 @@
 package com.wedit.backend.api.member.service;
 
-import com.wedit.backend.api.member.dto.MemberLoginRequestDTO;
-import com.wedit.backend.api.member.dto.MemberLoginResponseDTO;
-import com.wedit.backend.api.member.dto.MemberSocialAdditionalInfoRequestDTO;
-import com.wedit.backend.api.member.dto.MemberSignupRequestDTO;
+import com.wedit.backend.api.member.dto.*;
 import com.wedit.backend.api.member.entity.Member;
 import com.wedit.backend.api.member.entity.Role;
 import com.wedit.backend.api.member.jwt.service.JwtService;
 import com.wedit.backend.api.member.jwt.service.RefreshTokenService;
 import com.wedit.backend.api.member.repository.MemberRepository;
+import com.wedit.backend.api.scrap.entity.Scrap;
+import com.wedit.backend.api.scrap.repository.ScrapRepository;
 import com.wedit.backend.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.Repository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +27,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final ScrapRepository scrapRepository;
 
     @Transactional
     public void signup(MemberSignupRequestDTO dto) {
@@ -126,6 +127,21 @@ public class MemberService {
                             .build();
                 })
                 .orElseThrow(() -> new NotFoundException("저장된 리프레시 토큰이 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public MemberMyPageResponseDTO getMyPage(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다."));
+
+        if (member.isDeleted()) {
+            throw new NotFoundException("존재하지 않는 사용자입니다.");
+        }
+
+        long scrapCount = scrapRepository.countByMemberId(memberId);
+
+        return MemberMyPageResponseDTO.of(member.getName(), scrapCount);
     }
 
     @Transactional(readOnly = true)

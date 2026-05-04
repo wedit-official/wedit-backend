@@ -83,6 +83,17 @@ public class MemberController {
         return ApiResponse.successOnly(SuccessStatus.MEMBER_WITHDRAW_SUCCESS);
     }
 
+    @GetMapping("/mypage")
+    public ResponseEntity<?> getMyPage() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof SecurityMember securityMember)) {
+            return ResponseEntity.status(ErrorStatus.UNAUTHORIZED_USER.getStatusCode())
+                    .body(ApiResponse.fail(ErrorStatus.UNAUTHORIZED_USER.getStatusCode(), "인증이 필요합니다."));
+        }
+
+        return ApiResponse.success(SuccessStatus.MEMBER_MYPAGE_GET_SUCCESS, memberService.getMyPage(securityMember.getMember().getId()));
+    }
+
     @PostMapping("/social/additional-info")
     public ResponseEntity<ApiResponse<Void>> saveSocialAdditionalInfo(
             @Valid @RequestBody MemberSocialAdditionalInfoRequestDTO dto) {

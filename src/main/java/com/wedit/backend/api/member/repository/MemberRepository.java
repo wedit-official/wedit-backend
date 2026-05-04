@@ -18,4 +18,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByOauthIdAndDeletedFalse(String oauthId);
 
     boolean existsByEmailAndDeletedFalse(String email);
+
+
 }
